@@ -4,9 +4,16 @@ import Login from './pages/Login';
 import LandingPage from './pages/LandingPage';
 import AdminDashboard from './pages/Dashboard/AdminDashboard';
 import VoterDashboard from './pages/Dashboard/VoterDashboard';
+import CandidateDashboard from './pages/Dashboard/CandidateDashboard';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
 import ProfilePage from './pages/ProfilePage';
+import ManageElectionsPage from './pages/Admin/ManageElectionsPage';
+import ManageCandidatesPage from './pages/Admin/ManageCandidatesPage';
+import ManagePartiesPage from './pages/Admin/ManagePartiesPage';
+import VoterManagementPage from './pages/Admin/VoterManagementPage';
+import ViewResultsPage from './pages/Admin/ViewResultsPage';
+
 
 function App() {
   return (
@@ -31,9 +38,39 @@ function App() {
                 <AdminDashboard />
               </PrivateRoute>
             } />
+            <Route path="/admin/elections" element={
+              <PrivateRoute role="admin">
+                <ManageElectionsPage />
+              </PrivateRoute>
+            } />
+            <Route path="/admin/candidates" element={
+              <PrivateRoute role="admin">
+                <ManageCandidatesPage />
+              </PrivateRoute>
+            } />
+            <Route path="/admin/parties" element={
+              <PrivateRoute role="admin">
+                <ManagePartiesPage />
+              </PrivateRoute>
+            } />
+            <Route path="/admin/voters" element={
+              <PrivateRoute role="admin">
+                <VoterManagementPage />
+              </PrivateRoute>
+            } />
+            <Route path="/admin/results" element={
+              <PrivateRoute role="admin">
+                <ViewResultsPage />
+              </PrivateRoute>
+            } />
             <Route path="/voter" element={
               <PrivateRoute role="voter">
                 <VoterDashboard />
+              </PrivateRoute>
+            } />
+             <Route path="/candidate" element={
+              <PrivateRoute role="candidate">
+                <CandidateDashboard />
               </PrivateRoute>
             } />
           </Routes>
