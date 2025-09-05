@@ -35,22 +35,31 @@ const AdminDashboard = () => {
               <h1 className="text-5xl font-bold text-gradient mb-3">Admin Dashboard</h1>
               <p className="text-gray-600 text-lg mb-6">Welcome, {adminProfile?.name || 'Admin'}</p>
             </div>
-            <div className="flex flex-col gap-3 min-w-[200px] w-full lg:w-auto">
-              <Link to="/admin/elections">
-                <Button variant="primary" size="lg" fullWidth>Manage Elections</Button>
-              </Link>
-              <Link to="/admin/candidates">
-                <Button variant="primary" size="lg" fullWidth>Manage Candidates</Button>
-              </Link>
-              <Link to="/admin/parties">
-                <Button variant="glass" size="lg" fullWidth>Manage Parties</Button>
-              </Link>
-              <Link to="/admin/voters">
-                <Button variant="outline" size="lg" fullWidth>Voter Management</Button>
-              </Link>
-              <Link to="/admin/results">
-                <Button variant="outline" size="lg" fullWidth>View Results</Button>
-              </Link>
+            <div className="flex items-center gap-4">
+              {adminProfile?.image && (
+                <img
+                  src={`http://localhost:5000${adminProfile.image}`}
+                  alt="Profile"
+                  className="w-16 h-16 rounded-full object-cover"
+                />
+              )}
+              <div className="flex flex-col gap-3 min-w-[200px] w-full lg:w-auto">
+                <Link to="/admin/elections">
+                  <Button variant="primary" size="lg" fullWidth>Manage Elections</Button>
+                </Link>
+                <Link to="/admin/candidates">
+                  <Button variant="primary" size="lg" fullWidth>Manage Candidates</Button>
+                </Link>
+                <Link to="/admin/parties">
+                  <Button variant="glass" size="lg" fullWidth>Manage Parties</Button>
+                </Link>
+                <Link to="/admin/voters">
+                  <Button variant="outline" size="lg" fullWidth>Voter Management</Button>
+                </Link>
+                <Link to="/admin/results">
+                  <Button variant="outline" size="lg" fullWidth>View Results</Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

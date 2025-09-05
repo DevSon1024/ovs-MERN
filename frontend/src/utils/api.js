@@ -20,7 +20,9 @@ api.interceptors.request.use((config) => {
 export const registerUser = (formData) => api.post('/users/register', formData);
 export const loginUser = (credentials) => api.post('/users/login', credentials);
 export const getUserProfile = () => api.get('/users/me');
-export const getUsers = () => api.get('/users'); // Added this export
+export const getUsers = () => api.get('/users'); 
+export const vote = (electionId, candidateId) => api.post(`/elections/${electionId}/vote`, { candidateId });
+
 
 // --- Election Services ---
 export const getElections = () => api.get('/elections');

@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import { getUsers } from '../../utils/api';
 import Spinner from '../../components/Spinner';
 import Alert from '../../components/Alert';
+import Button from '../../components/Button';
+import VoterDetailsModal from '../../components/VoterDetailsModal';
 
 export default function VoterManagementPage() {
     const [voters, setVoters] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [selectedVoter, setSelectedVoter] = useState(null);
 
     useEffect(() => {
         const fetchVoters = async () => {
@@ -36,6 +39,7 @@ export default function VoterManagementPage() {
                             <th className="text-left">Email</th>
                             <th className="text-left">State</th>
                             <th className="text-left">City</th>
+                            <th className="text-left">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -45,11 +49,22 @@ export default function VoterManagementPage() {
                                 <td>{voter.email}</td>
                                 <td>{voter.state}</td>
                                 <td>{voter.city}</td>
+                                <td>
+                                  <Button onClick={() => setSelectedVoter(voter)} size="sm">
+                                    View Details
+                                  </Button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
+            {selectedVoter && (
+              <VoterDetailsModal
+                voter={selectedVoter}
+                onClose={() => setSelectedVoter(null)}
+              />
+            )}
         </div>
     );
 };

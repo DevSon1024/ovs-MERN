@@ -87,8 +87,17 @@ const getMe = async (req, res) => {
 // @access  Private/Admin
 const getUsers = async (req, res) => {
   const users = await User.find({}).populate('party');
-  res.json(users);
+  res.json(users.map(user => {
+    const userObject = user.toObject();
+    if (userObject.dob) {
+      const ageDifMs = Date.now() - new Date(userObject.dob).getTime();
+      const ageDate = new Date(ageDifMs);
+      userObject.age = Math.abs(ageDate.getUTCFullYear() - 1970);
+    }
+    return userObject;
+  }));
 };
+
 
 // Generate JWT
 const generateToken = (id, role) => {

@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
-import { getElections, getUserProfile } from '../../utils/api';
+import { getElections, getUserProfile, vote } from '../../utils/api';
 import Spinner from '../../components/Spinner';
 import Alert from '../../components/Alert';
-// We will create ElectionCard in the next step
-// import ElectionCard from '../../components/ElectionCard'; 
 import Button from '../../components/Button';
 import { Link } from 'react-router-dom';
+import ElectionCard from '../../components/ElectionCard'; 
 
 const VoterDashboard = () => {
   const [elections, setElections] = useState([]);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showVoteModal, setShowVoteModal] = useState(false);
+  const [selectedElection, setSelectedElection] = useState(null);
 
   const fetchDashboardData = async () => {
     try {
@@ -34,6 +35,15 @@ const VoterDashboard = () => {
     setLoading(true);
     fetchDashboardData();
   }, []);
+
+  const handleVote = async (electionId, candidateId) => {
+    try {
+      await vote(electionId, candidateId);
+      fetchDashboardData(); // Refresh data after voting
+    } catch (error) {
+      setError(error.response?.data?.message || 'Failed to cast vote.');
+    }
+  };
   
   if (loading) return <Spinner />;
 
@@ -47,12 +57,21 @@ const VoterDashboard = () => {
               <p className="text-gray-600 text-lg">Welcome, {userProfile?.name || 'Voter'}</p>
               <p className="text-gray-500 text-sm">{userProfile?.email}</p>
             </div>
-            <div className="flex flex-col gap-3 min-w-[200px]">
-               <Link to="/profile">
-                 <Button variant="primary" size="lg" fullWidth>
-                   Edit Profile
-                 </Button>
-               </Link>
+            <div className="flex items-center gap-4">
+              {userProfile?.image && (
+                <img
+                  src={`http://localhost:5000${userProfile.image}`}
+                  alt="Profile"
+                  className="w-16 h-16 rounded-full object-cover"
+                />
+              )}
+              <div className="flex flex-col gap-3 min-w-[200px]">
+                 <Link to="/profile">
+                   <Button variant="primary" size="lg" fullWidth>
+                     Edit Profile
+                   </Button>
+                 </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -64,12 +83,12 @@ const VoterDashboard = () => {
         <div>
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Available Elections</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* We will map over ElectionCard components here once created */}
             {elections.map(election => (
-                <div key={election._id} className="border p-4 rounded-md shadow-sm">
-                    <h3 className="font-bold">{election.title}</h3>
-                    <p>{election.description}</p>
-                </div>
+              <ElectionCard
+                key={election._id}
+                election={election}
+                onVote={handleVote}
+              />
             ))}
           </div>
         </div>
