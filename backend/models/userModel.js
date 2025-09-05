@@ -40,6 +40,10 @@ const userSchema = mongoose.Schema(
     image: {
       type: String,
     },
+    dob: { // Added Date of Birth field
+      type: Date,
+      required: true,
+    },
   },
   {
     timestamps: true,
