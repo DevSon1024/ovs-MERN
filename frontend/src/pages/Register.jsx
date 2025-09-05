@@ -6,6 +6,8 @@ import Alert from '../components/Alert';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import AutocompleteInput from '../components/AutocompleteInput';
+import { getParties } from '../utils/api';
+
 
 const Register = () => {
   const [step, setStep] = useState(1);
@@ -20,10 +22,12 @@ const Register = () => {
     aadhar: '',
     address: '',
     dob: '', // Added dob to state
+    party: '',
   });
   const [confirmPassword, setConfirmPassword] = useState(''); // State for confirm password
   const [image, setImage] = useState(null);
   const [cities, setCities] = useState([]);
+  const [parties, setParties] = useState([]);
   const [error, setError] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false); // State for confirm password visibility
@@ -40,6 +44,21 @@ const Register = () => {
       setCities([]);
     }
   }, [formData.state]);
+
+  useEffect(() => {
+    if (formData.role === 'candidate') {
+      const fetchParties = async () => {
+        try {
+          const { data } = await getParties();
+          setParties(data);
+        } catch (error) {
+          setError('Could not fetch parties.');
+        }
+      };
+      fetchParties();
+    }
+  }, [formData.role]);
+
 
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -156,6 +175,12 @@ const Register = () => {
           <>
             <Input type="text" name="aadhar" value={formData.aadhar} onChange={onChange} placeholder="Aadhar Card Number" />
             <Input type="text" name="address" value={formData.address} onChange={onChange} placeholder="Full Residential Address" />
+            <select name="party" value={formData.party} onChange={onChange} required className="w-full px-3 py-2 border rounded-md">
+              <option value="">Select a Party</option>
+              {parties.map(party => (
+                <option key={party._id} value={party._id}>{party.name}</option>
+              ))}
+            </select>
           </>
         )}
         <div>

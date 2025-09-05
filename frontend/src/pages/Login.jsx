@@ -9,22 +9,34 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login, isAuthenticated, isAdmin } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(isAdmin ? '/admin' : '/voter');
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else if (user.role === 'candidate') {
+        navigate('/candidate');
+      } else {
+        navigate('/voter');
+      }
     }
-  }, [isAuthenticated, isAdmin, navigate]);
+  }, [isAuthenticated, user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
       const { role } = await login({ email, password });
-      navigate(role === 'admin' ? '/admin' : '/voter');
+      if (role === 'admin') {
+        navigate('/admin');
+      } else if (role === 'candidate') {
+        navigate('/candidate');
+      } else {
+        navigate('/voter');
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
     }

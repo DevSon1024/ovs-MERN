@@ -5,7 +5,7 @@ import User from '../models/userModel.js';
 // @route   POST /api/users/register
 // @access  Public
 const registerUser = async (req, res) => {
-  const { name, email, password, role, state, city, mobile, aadhar, address, dob } = req.body; // Add dob
+  const { name, email, password, role, state, city, mobile, aadhar, address, dob, party } = req.body; // Add dob
   const image = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
@@ -28,6 +28,7 @@ const registerUser = async (req, res) => {
       address,
       image,
       dob, // Add dob to the create call
+      party
     });
 
     if (user) {
@@ -77,14 +78,15 @@ const loginUser = async (req, res) => {
 // @route   GET /api/users/me
 // @access  Private
 const getMe = async (req, res) => {
-  res.status(200).json(req.user);
+  const user = await User.findById(req.user._id).populate('party');
+  res.status(200).json(user);
 };
 
 // @desc    Get all users
 // @route   GET /api/users
 // @access  Private/Admin
 const getUsers = async (req, res) => {
-  const users = await User.find({});
+  const users = await User.find({}).populate('party');
   res.json(users);
 };
 

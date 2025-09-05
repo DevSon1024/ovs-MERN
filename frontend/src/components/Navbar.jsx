@@ -3,13 +3,27 @@ import { useAuth } from '../hooks/AuthContext';
 import Button from './Button';
 
 export default function Navbar() {
-  const { isAuthenticated, isAdmin, logout } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
+
+  const getDashboardLink = () => {
+    if (!user) return "/";
+    switch (user.role) {
+      case 'admin':
+        return '/admin';
+      case 'candidate':
+        return '/candidate';
+      case 'voter':
+        return '/voter';
+      default:
+        return '/';
+    }
+  }
 
   return (
     <nav className="bg-gray-50 bg-opacity-70 backdrop-blur-md shadow-sm sticky top-0 z-50">
@@ -21,7 +35,7 @@ export default function Navbar() {
           <div className="flex items-center space-x-4">
             {isAuthenticated ? (
               <>
-                <Link to={isAdmin ? "/admin" : "/voter"} className="text-gray-700 hover:text-blue-600 font-medium">
+                <Link to={getDashboardLink()} className="text-gray-700 hover:text-blue-600 font-medium">
                   Dashboard
                 </Link>
                 <Link to="/profile" className="text-gray-700 hover:text-blue-600 font-medium">

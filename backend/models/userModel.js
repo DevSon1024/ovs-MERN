@@ -44,6 +44,10 @@ const userSchema = mongoose.Schema(
       type: Date,
       required: true,
     },
+    party: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Party'
+    }
   },
   {
     timestamps: true,

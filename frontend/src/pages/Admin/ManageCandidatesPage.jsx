@@ -1,16 +1,14 @@
 import { useState, useEffect } from 'react';
-import { addCandidate, getUsers, getParties, getElections } from '../../utils/api';
+import { addCandidate, getUsers, getElections } from '../../utils/api';
 import Alert from '../../components/Alert';
 import Button from '../../components/Button';
 
 export default function ManageCandidatesPage() {
   const [candidates, setCandidates] = useState([]);
-  const [parties, setParties] = useState([]);
   const [elections, setElections] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
-    partyId: '',
     electionId: ''
   });
   const [error, setError] = useState('');
@@ -23,13 +21,11 @@ export default function ManageCandidatesPage() {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const [candidatesRes, partiesRes, electionsRes] = await Promise.all([
+      const [candidatesRes, electionsRes] = await Promise.all([
         getUsers(),
-        getParties(),
         getElections()
       ]);
       setCandidates(candidatesRes.data.filter(user => user.role === 'candidate'));
-      setParties(partiesRes.data);
       setElections(electionsRes.data);
     } catch (err) {
       setError('Could not fetch data.');
@@ -47,11 +43,11 @@ export default function ManageCandidatesPage() {
     setError('');
     setSuccess('');
     try {
-      await addCandidate(formData);
+      const selectedCandidate = candidates.find(c => c.name === formData.name);
+      await addCandidate({...formData, partyId: selectedCandidate.party._id});
       setSuccess('Candidate added successfully!');
       setFormData({
         name: '',
-        partyId: '',
         electionId: ''
       });
     } catch (err) {
@@ -73,17 +69,10 @@ export default function ManageCandidatesPage() {
             <select name="name" value={formData.name} onChange={handleInputChange} required className="w-full px-3 py-2 border rounded-md">
               <option value="">Select a Candidate</option>
               {candidates.map(candidate => (
-                <option key={candidate._id} value={candidate.name}>{candidate.name}</option>
+                <option key={candidate._id} value={candidate.name}>{candidate.name} ({candidate.party?.name})</option>
               ))}
             </select>
             
-            <select name="partyId" value={formData.partyId} onChange={handleInputChange} required className="w-full px-3 py-2 border rounded-md">
-              <option value="">Select a Party</option>
-              {parties.map(party => (
-                <option key={party._id} value={party._id}>{party.name}</option>
-              ))}
-            </select>
-
             <select name="electionId" value={formData.electionId} onChange={handleInputChange} required className="w-full px-3 py-2 border rounded-md">
                 <option value="">Select an Election</option>
                 {elections.map(election => (
@@ -101,7 +90,7 @@ export default function ManageCandidatesPage() {
             <div className="space-y-2">
               {candidates.map(candidate => (
                 <div key={candidate._id} className="bg-white p-3 rounded-lg shadow-sm">
-                  <p className="font-semibold">{candidate.name}</p>
+                  <p className="font-semibold">{candidate.name} ({candidate.party?.name})</p>
                   <p className="text-sm text-gray-500">{candidate.email}</p>
                 </div>
               ))}
