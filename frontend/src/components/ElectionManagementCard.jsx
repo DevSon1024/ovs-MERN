@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { deleteElection, deleteCandidate, getAdminElectionResults, declareResults, revokeResults } from '../utils/api';
 import Button from './Button';
-import VoteModal from './VoteModal'; 
+import VoteModal from './VoteModal';
 import AdminElectionResults from './AdminElectionResults';
 
 export default function ElectionManagementCard({ election, onDataChange }) {
@@ -51,7 +51,7 @@ export default function ElectionManagementCard({ election, onDataChange }) {
       setLoadingResults(false);
     }
   };
-  
+
   const getElectionStatus = () => {
     const now = new Date();
     if (new Date(election.startDate) > now) return { text: 'Upcoming', color: 'bg-blue-100 text-blue-700' };
@@ -84,7 +84,7 @@ export default function ElectionManagementCard({ election, onDataChange }) {
           <Button onClick={handleDeleteElection} variant="danger">Delete</Button>
         </div>
       </div>
-      
+
       <div className="glass-card rounded-xl p-5 border border-white/30">
         <h3 className="font-semibold text-gray-800 mb-3">Candidates ({election.candidates.length})</h3>
         {election.candidates.length > 0 ? (
@@ -122,7 +122,7 @@ export default function ElectionManagementCard({ election, onDataChange }) {
           electionToEdit={election}
         />
       )}
-      
+
       {showResultsModal && results && (
         <AdminElectionResults
           results={results}

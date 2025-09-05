@@ -41,3 +41,5 @@ export const deleteParty = (id) => api.delete(`/parties/${id}`);
 // --- Candidate Services ---
 export const addCandidate = (candidateData) => api.post('/candidates', candidateData);
 export const deleteCandidate = (candidateId) => api.delete(`/candidates/${candidateId}`);
+
+export const deleteUserProfile = () => api.delete('/users/profile');

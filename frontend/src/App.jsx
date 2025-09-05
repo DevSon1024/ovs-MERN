@@ -74,6 +74,7 @@ function App() {
                 <CandidateDashboard />
               </PrivateRoute>
             } />
+            <Route path="*" element={<h1>404 Not Found</h1>} />
           </Routes>
         </main>
         <Footer /> {/* Add the new footer */}
