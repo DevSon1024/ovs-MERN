@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
 import indianStatesCities from '../data/indian-states-cities.json';
-import { useNavigate } from 'react-router-dom';
+import Alert from '../components/Alert';
+import Input from '../components/Input';
+import Button from '../components/Button';
+import AutocompleteInput from '../components/AutocompleteInput';
 
 const Register = () => {
   const [step, setStep] = useState(1);
@@ -15,10 +19,14 @@ const Register = () => {
     mobile: '',
     aadhar: '',
     address: '',
-    image: '',
+    dob: '', // Added dob to state
   });
-
+  const [confirmPassword, setConfirmPassword] = useState(''); // State for confirm password
+  const [image, setImage] = useState(null);
   const [cities, setCities] = useState([]);
+  const [error, setError] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false); // State for confirm password visibility
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,7 +35,7 @@ const Register = () => {
         (s) => s.name === formData.state
       );
       setCities(selectedState ? selectedState.cities : []);
-      setFormData(prev => ({ ...prev, city: '' })); // Reset city on state change
+      setFormData(prev => ({ ...prev, city: '' }));
     } else {
       setCities([]);
     }
@@ -36,153 +44,146 @@ const Register = () => {
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  
+  const handleAutocompleteSelect = (name, value) => {
+    setFormData({ ...formData, [name]: value });
+  };
 
-  const nextStep = () => setStep(step + 1);
+  const handleFileChange = (e) => {
+    setImage(e.target.files[0]);
+  };
+
+  const nextStep = () => {
+    if (!formData.name || !formData.email || !formData.password || !confirmPassword) {
+      return setError('Please fill in all required fields.');
+    }
+    if (formData.password.length < 6) {
+      return setError('Password must be at least 6 characters long.');
+    }
+    if (formData.password !== confirmPassword) {
+      return setError('Passwords do not match.');
+    }
+    setError('');
+    setStep(step + 1);
+  };
+  
   const prevStep = () => setStep(step - 1);
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.dob) {
+        return setError('Please provide your date of birth.');
+    }
+
+    const finalFormData = new FormData();
+    for (const key in formData) {
+      finalFormData.append(key, formData[key]);
+    }
+    if (image) {
+      finalFormData.append('image', image);
+    }
+
     try {
-      await axios.post('/api/users/register', formData);
-      navigate('/login'); // Redirect to login after successful registration
+      await axios.post('/api/users/register', finalFormData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      navigate('/login');
     } catch (err) {
-      console.error(err.response.data);
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
     }
   };
-
+  
   const renderStep1 = () => (
     <>
-      <h2 className="text-2xl font-bold mb-6 text-white text-center">Step 1: Basic Information</h2>
-      <div className="mb-4">
-        <input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={onChange}
-          placeholder="Name"
-          required
-          className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">Create an Account (Step 1 of 2)</h2>
+        <p className="text-gray-600">Enter your basic information to get started.</p>
       </div>
-      <div className="mb-4">
-        <input
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={onChange}
-          placeholder="Email"
-          required
-          className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      <div className="space-y-4">
+        <Input type="text" name="name" value={formData.name} onChange={onChange} placeholder="Full Name" required />
+        <Input type="email" name="email" value={formData.email} onChange={onChange} placeholder="Email Address" required />
+        <Input 
+            type="password" 
+            name="password" 
+            value={formData.password} 
+            onChange={onChange} 
+            placeholder="Create a Password" 
+            required 
+            isPasswordVisible={isPasswordVisible} 
+            onToggleVisibility={() => setIsPasswordVisible(!isPasswordVisible)}
         />
-      </div>
-      <div className="mb-4">
-        <input
-          type="password"
-          name="password"
-          value={formData.password}
-          onChange={onChange}
-          placeholder="Password"
-          required
-          className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <Input 
+            type="password"
+            name="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Confirm Password"
+            required
+            isPasswordVisible={isConfirmPasswordVisible}
+            onToggleVisibility={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)}
         />
-      </div>
-      <div className="mb-6">
-        <select name="role" value={formData.role} onChange={onChange} className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <select name="role" value={formData.role} onChange={onChange} className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
           <option value="voter">Register as a Voter</option>
           <option value="candidate">Register as a Candidate</option>
         </select>
       </div>
-      <button type="button" onClick={nextStep} className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300">
-        Next
-      </button>
+      <Button type="button" onClick={nextStep} className="mt-6" fullWidth>
+        Next Step
+      </Button>
     </>
   );
 
-  const renderVoterFields = () => (
+  const renderStep2 = () => (
     <>
-      <h2 className="text-2xl font-bold mb-6 text-white text-center">Step 2: Voter Details</h2>
-      {commonFields()}
-      <div className="flex justify-between mt-6">
-        <button type="button" onClick={prevStep} className="w-1/2 mr-2 bg-gray-600 text-white py-2 rounded-md hover:bg-gray-700 transition duration-300">Back</button>
-        <button type="submit" className="w-1/2 ml-2 bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition duration-300">Register</button>
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">{`Details (Step 2 of 2)`}</h2>
+        <p className="text-gray-600">{`Please provide your details as a ${formData.role}.`}</p>
       </div>
-    </>
-  );
-  
-  const renderCandidateFields = () => (
-    <>
-      <h2 className="text-2xl font-bold mb-6 text-white text-center">Step 2: Candidate Details</h2>
-      {commonFields()}
-      <div className="mb-4">
-        <input
-          type="text"
-          name="aadhar"
-          value={formData.aadhar}
-          onChange={onChange}
-          placeholder="Aadhar Card Number"
-          className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+      <div className="space-y-4">
+        <AutocompleteInput name="state" placeholder="State" value={formData.state} items={indianStatesCities.states.map(s => s.name)} onSelect={(value) => handleAutocompleteSelect('state', value)} required />
+        <AutocompleteInput name="city" placeholder="City" value={formData.city} items={cities} onSelect={(value) => handleAutocompleteSelect('city', value)} required disabled={!formData.state} />
+        <Input type="text" name="mobile" value={formData.mobile} onChange={onChange} placeholder="Mobile Number" />
+        
+        {/* Date of Birth Input */}
+        <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Date of Birth</label>
+            <Input type="date" name="dob" value={formData.dob} onChange={onChange} required />
+        </div>
+        
+        {formData.role === 'candidate' && (
+          <>
+            <Input type="text" name="aadhar" value={formData.aadhar} onChange={onChange} placeholder="Aadhar Card Number" />
+            <Input type="text" name="address" value={formData.address} onChange={onChange} placeholder="Full Residential Address" />
+          </>
+        )}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Profile Image (Optional)</label>
+          <input type="file" name="image" onChange={handleFileChange} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
+        </div>
       </div>
-      <div className="mb-4">
-        <input
-          type="text"
-          name="address"
-          value={formData.address}
-          onChange={onChange}
-          placeholder="Full Residential Address"
-          className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-      <div className="flex justify-between mt-6">
-        <button type="button" onClick={prevStep} className="w-1/2 mr-2 bg-gray-600 text-white py-2 rounded-md hover:bg-gray-700 transition duration-300">Back</button>
-        <button type="submit" className="w-1/2 ml-2 bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition duration-300">Register</button>
-      </div>
-    </>
-  );
-
-  const commonFields = () => (
-    <>
-      <div className="mb-4">
-        <select name="state" value={formData.state} onChange={onChange} className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option value="">Select State</option>
-          {indianStatesCities.states.map((s) => (
-            <option key={s.name} value={s.name}>{s.name}</option>
-          ))}
-        </select>
-      </div>
-      <div className="mb-4">
-        <select name="city" value={formData.city} onChange={onChange} disabled={!formData.state} className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50">
-          <option value="">Select City</option>
-          {cities.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-      </div>
-      <div className="mb-4">
-        <input
-          type="text"
-          name="mobile"
-          value={formData.mobile}
-          onChange={onChange}
-          placeholder="Mobile Number"
-          className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-300 mb-2">Profile Image</label>
-        <input type="file" name="image" onChange={onChange} className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600"/>
+      <div className="flex justify-between items-center mt-6 gap-4">
+        <Button type="button" onClick={prevStep} variant="secondary" fullWidth>Back</Button>
+        <Button type="submit" fullWidth>Register</Button>
       </div>
     </>
   );
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-      <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
-        <form onSubmit={onSubmit}>
-          {step === 1 && renderStep1()}
-          {step === 2 && formData.role === 'voter' && renderVoterFields()}
-          {step === 2 && formData.role === 'candidate' && renderCandidateFields()}
-        </form>
+    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
+      <div className="max-w-md w-full">
+        <div className="glass-effect rounded-3xl p-8 shadow-large">
+          <form onSubmit={onSubmit}>
+            <Alert message={error} />
+            {step === 1 ? renderStep1() : renderStep2()}
+          </form>
+          <div className="mt-6 text-center">
+            <p className="text-gray-500">
+              Already have an account? <Link to="/login" className="font-semibold text-indigo-600 hover:underline">Sign In</Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
