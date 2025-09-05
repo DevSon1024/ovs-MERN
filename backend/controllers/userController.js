@@ -5,7 +5,7 @@ import User from '../models/userModel.js';
 // @route   POST /api/users/register
 // @access  Public
 const registerUser = async (req, res) => {
-  const { name, email, password, role, state, city, mobile, aadhar, address, dob, party } = req.body; // Add dob
+  const { name, email, password, role, state, city, mobile, aadhar, address, dob, party } = req.body;
   const image = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
@@ -27,7 +27,7 @@ const registerUser = async (req, res) => {
       aadhar,
       address,
       image,
-      dob, // Add dob to the create call
+      dob,
       party
     });
 
@@ -98,6 +98,36 @@ const getUsers = async (req, res) => {
   }));
 };
 
+// @desc    Update user profile
+// @route   PUT /api/users/profile
+// @access  Private
+const updateUserProfile = async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    if (req.body.password) {
+      user.password = req.body.password;
+    }
+    if (req.body.party) {
+        user.party = req.body.party;
+    }
+
+    const updatedUser = await user.save();
+
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      role: updatedUser.role,
+      party: updatedUser.party,
+    });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+};
 
 // Generate JWT
 const generateToken = (id, role) => {
@@ -106,4 +136,4 @@ const generateToken = (id, role) => {
   });
 };
 
-export { registerUser, loginUser, getMe, getUsers };
+export { registerUser, loginUser, getMe, getUsers, updateUserProfile };

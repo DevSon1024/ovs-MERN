@@ -96,6 +96,61 @@ const deleteElection = async (req, res) => {
     }
 };
 
+// @desc    Cast a vote
+// @route   POST /api/elections/:id/vote
+// @access  Private/Voter
+const castVote = async (req, res) => {
+    const { candidateId } = req.body;
+    const electionId = req.params.id;
+    const voterId = req.user._id;
+
+    try {
+        const election = await Election.findById(electionId);
+        if (!election) {
+            return res.status(404).json({ message: 'Election not found' });
+        }
+
+        // Check if the election is active
+        const now = new Date();
+        if (now < election.startDate || now > election.endDate) {
+            return res.status(400).json({ message: 'Election is not active' });
+        }
+
+        // Check if results are declared
+        if (election.resultsDeclared) {
+            return res.status(400).json({ message: 'Voting has ended for this election' });
+        }
+
+        // Check if the user has already voted in this election
+        const existingVote = await Vote.findOne({ voter: voterId, election: electionId });
+        if (existingVote) {
+            return res.status(400).json({ message: 'You have already voted in this election' });
+        }
+
+        // Check if the candidate is part of the election
+        const candidateInElection = election.candidates.map(c => c.toString()).includes(candidateId);
+        if (!candidateInElection) {
+            return res.status(400).json({ message: 'Candidate is not part of this election' });
+        }
+
+        const newVote = new Vote({
+            voter: voterId,
+            candidate: candidateId,
+            election: electionId,
+        });
+
+        await newVote.save();
+        res.status(201).json({ message: 'Vote cast successfully' });
+    } catch (err) {
+        if (err.code === 11000) {
+            return res.status(400).json({ message: 'You have already cast your vote in this election.' });
+        }
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
+
 // @desc    Declare results
 // @route   PUT /api/elections/:id/declare-results
 // @access  Private/Admin
@@ -198,5 +253,6 @@ export {
     deleteElection,
     declareResults,
     revokeResults,
-    getAdminElectionResults
+    getAdminElectionResults,
+    castVote
 };

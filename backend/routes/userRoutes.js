@@ -5,6 +5,7 @@ import {
   loginUser,
   getMe,
   getUsers,
+  updateUserProfile
 } from '../controllers/userController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 import { check } from 'express-validator';
@@ -23,6 +24,7 @@ router.post(
 );
 router.post('/login', loginUser);
 router.get('/me', protect, getMe);
+router.put('/profile', protect, updateUserProfile); // Added route
 router.get('/', protect, admin, getUsers);
 
 export default router;

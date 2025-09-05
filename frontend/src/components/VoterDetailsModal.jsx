@@ -10,11 +10,18 @@ const VoterDetailsModal = ({ voter, onClose }) => {
         >
           &times;
         </button>
-        <h2 className="text-2xl font-bold mb-6 text-center">Voter Details</h2>
-        <div className="space-y-4">
-          <p>
-            <strong>Name:</strong> {voter.name}
-          </p>
+        <h2 className="text-2xl font-bold mb-6 text-center text-gradient">Voter Details</h2>
+        <div className="flex flex-col items-center mb-6">
+          {voter.image && (
+            <img
+              src={`http://localhost:5000${voter.image}`}
+              alt="Profile"
+              className="w-32 h-32 rounded-lg object-cover shadow-md mb-4"
+            />
+          )}
+          <p className="text-xl font-semibold">{voter.name}</p>
+        </div>
+        <div className="space-y-3 text-gray-700">
           <p>
             <strong>Email:</strong> {voter.email}
           </p>
@@ -26,6 +33,12 @@ const VoterDetailsModal = ({ voter, onClose }) => {
           </p>
           <p>
             <strong>Mobile:</strong> {voter.mobile}
+          </p>
+          <p>
+            <strong>Aadhar:</strong> {voter.aadhar}
+          </p>
+          <p>
+            <strong>Address:</strong> {voter.address}
           </p>
           <p>
             <strong>Date of Birth:</strong> {new Date(voter.dob).toLocaleDateString()}

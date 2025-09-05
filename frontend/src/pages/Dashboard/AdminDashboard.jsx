@@ -30,7 +30,7 @@ const AdminDashboard = () => {
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
         <div className="elevated-card rounded-2xl p-8 shadow-large hover-lift">
-          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
             <div className="flex-grow text-center lg:text-left">
               <h1 className="text-5xl font-bold text-gradient mb-3">Admin Dashboard</h1>
               <p className="text-gray-600 text-lg mb-6">Welcome, {adminProfile?.name || 'Admin'}</p>
@@ -40,7 +40,7 @@ const AdminDashboard = () => {
                 <img
                   src={`http://localhost:5000${adminProfile.image}`}
                   alt="Profile"
-                  className="w-16 h-16 rounded-full object-cover"
+                  className="w-24 h-24 rounded-lg object-cover shadow-md" 
                 />
               )}
               <div className="flex flex-col gap-3 min-w-[200px] w-full lg:w-auto">

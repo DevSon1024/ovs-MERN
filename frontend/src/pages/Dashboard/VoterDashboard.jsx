@@ -62,7 +62,7 @@ const VoterDashboard = () => {
                 <img
                   src={`http://localhost:5000${userProfile.image}`}
                   alt="Profile"
-                  className="w-16 h-16 rounded-full object-cover"
+                  className="w-24 h-24 rounded-lg object-cover shadow-md"
                 />
               )}
               <div className="flex flex-col gap-3 min-w-[200px]">
@@ -88,6 +88,7 @@ const VoterDashboard = () => {
                 key={election._id}
                 election={election}
                 onVote={handleVote}
+                resultsDeclared={election.resultsDeclared}
               />
             ))}
           </div>
