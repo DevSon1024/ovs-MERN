@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { addCandidate, getUsers, getElections } from '../../utils/api';
 import Alert from '../../components/Alert';
 import Button from '../../components/Button';
+import Spinner from '../../components/Spinner';
 
 export default function ManageCandidatesPage() {
   const [candidates, setCandidates] = useState([]);
@@ -44,12 +45,16 @@ export default function ManageCandidatesPage() {
     setSuccess('');
     try {
       const selectedCandidate = candidates.find(c => c.name === formData.name);
+      if (!selectedCandidate) {
+        return setError('Selected candidate not found.');
+      }
       await addCandidate({...formData, partyId: selectedCandidate.party._id});
       setSuccess('Candidate added successfully!');
       setFormData({
         name: '',
         electionId: ''
       });
+      fetchData(); // Refresh data
     } catch (err) {
       setError(err.response?.data?.msg || 'Failed to add candidate.');
     }
@@ -57,11 +62,14 @@ export default function ManageCandidatesPage() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Manage Candidates</h1>
+      <div className="elevated-card rounded-2xl p-6 mb-6">
+        <h1 className="text-4xl font-bold text-gradient mb-2">Candidate Management</h1>
+        <p className="text-gray-600">Assign registered candidates to specific elections.</p>
+      </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Add Candidate to Election</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="professional-card p-6 hover-lift">
+          <h2 className="text-2xl font-bold mb-4">Assign Candidate to Election</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Alert message={error} type="error" />
             <Alert message={success} type="success" />
@@ -69,7 +77,7 @@ export default function ManageCandidatesPage() {
             <select name="name" value={formData.name} onChange={handleInputChange} required className="w-full px-3 py-2 border rounded-md">
               <option value="">Select a Candidate</option>
               {candidates.map(candidate => (
-                <option key={candidate._id} value={candidate.name}>{candidate.name} ({candidate.party?.name})</option>
+                <option key={candidate._id} value={candidate.name}>{candidate.name} ({candidate.party?.name || 'No Party'})</option>
               ))}
             </select>
             
@@ -84,13 +92,13 @@ export default function ManageCandidatesPage() {
           </form>
         </div>
         
-        <div>
+        <div className="professional-card p-6 hover-lift">
           <h2 className="text-2xl font-bold mb-4">Registered Candidates</h2>
-          {isLoading ? <p>Loading...</p> : (
-            <div className="space-y-2">
+          {isLoading ? <Spinner /> : (
+            <div className="space-y-3 max-h-[400px] overflow-y-auto">
               {candidates.map(candidate => (
-                <div key={candidate._id} className="bg-white p-3 rounded-lg shadow-sm">
-                  <p className="font-semibold">{candidate.name} ({candidate.party?.name})</p>
+                <div key={candidate._id} className="bg-white p-3 rounded-lg shadow-soft">
+                  <p className="font-semibold">{candidate.name} ({candidate.party?.name || 'No Party'})</p>
                   <p className="text-sm text-gray-500">{candidate.email}</p>
                 </div>
               ))}

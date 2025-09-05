@@ -2,23 +2,20 @@ import { useState, useEffect } from 'react';
 import { addParty, getParties, updateParty, deleteParty } from '../../utils/api';
 import Alert from '../../components/Alert';
 import Button from '../../components/Button';
+import Spinner from '../../components/Spinner';
 
 export default function ManagePartiesPage() {
   const [parties, setParties] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // State for the form
   const [formData, setFormData] = useState({ name: '', level: 'Local' });
   const [logoFile, setLogoFile] = useState(null);
   
-  // State for editing
   const [editingId, setEditingId] = useState(null);
   
-  // State for messages
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Fetch all parties on component mount
   useEffect(() => {
     fetchParties();
   }, []);
@@ -70,7 +67,7 @@ export default function ManagePartiesPage() {
         setSuccess(`Party "${formData.name}" added successfully!`);
       }
       resetForm();
-      fetchParties(); // Refresh the list
+      fetchParties();
     } catch (err) {
       setError(err.response?.data?.msg || `Failed to ${editingId ? 'update' : 'add'} party.`);
     }
@@ -86,7 +83,7 @@ export default function ManagePartiesPage() {
       try {
         await deleteParty(party._id);
         setSuccess(`Party "${party.name}" deleted.`);
-        fetchParties(); // Refresh the list
+        fetchParties();
       } catch (err) {
         setError(err.response?.data?.msg || 'Failed to delete party.');
       }
@@ -95,9 +92,13 @@ export default function ManagePartiesPage() {
 
   return (
     <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Manage Parties</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
+        <div className="elevated-card rounded-2xl p-6 mb-6">
+            <h1 className="text-4xl font-bold text-gradient mb-2">Party Management</h1>
+            <p className="text-gray-600">Administer political parties and their details.</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="professional-card p-6 hover-lift">
                 <h2 className="text-2xl font-bold mb-4">{editingId ? 'Edit Party' : 'Add New Party'}</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <Alert message={error} type="error" />
@@ -110,24 +111,24 @@ export default function ManagePartiesPage() {
                   </select>
                   <input type="file" name="logo" onChange={handleFileChange} className="w-full text-sm"/>
 
-                  <div className="flex justify-end gap-4">
+                  <div className="flex justify-end gap-4 pt-2">
                     {editingId && <Button onClick={resetForm} type="button" variant="secondary">Cancel Edit</Button>}
                     <Button type="submit">{editingId ? 'Update Party' : 'Add Party'}</Button>
                   </div>
                 </form>
             </div>
-            <div>
+            <div className="professional-card p-6 hover-lift">
                 <h2 className="text-2xl font-bold mb-4">Existing Parties</h2>
-                {isLoading ? <p>Loading...</p> : (
-                    <div className="space-y-2">
+                {isLoading ? <Spinner /> : (
+                    <div className="space-y-3">
                       {parties.map(party => (
-                        <div key={party._id} className="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
+                        <div key={party._id} className="flex items-center justify-between bg-white p-3 rounded-lg shadow-soft">
                           <div className="flex items-center gap-4">
                             {party.logoUrl && <img src={`http://localhost:5000${party.logoUrl}`} alt={party.name} className="w-10 h-10 rounded-md object-contain" />}
-                            <span>{party.name} ({party.level})</span>
+                            <span className="font-semibold">{party.name} <span className="text-gray-500 font-normal">({party.level})</span></span>
                           </div>
                           <div className="flex gap-2">
-                            <Button onClick={() => handleEdit(party)} size="sm">Edit</Button>
+                            <Button onClick={() => handleEdit(party)} size="sm" variant="ghost">Edit</Button>
                             <Button onClick={() => handleDelete(party)} variant="danger" size="sm">Delete</Button>
                           </div>
                         </div>

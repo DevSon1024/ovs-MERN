@@ -11,8 +11,18 @@ const VoterDashboard = () => {
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [showVoteModal, setShowVoteModal] = useState(false);
-  const [selectedElection, setSelectedElection] = useState(null);
+
+  const calculateAge = (dob) => {
+    if (!dob) return null;
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -39,7 +49,7 @@ const VoterDashboard = () => {
   const handleVote = async (electionId, candidateId) => {
     try {
       await vote(electionId, candidateId);
-      fetchDashboardData(); // Refresh data after voting
+      fetchDashboardData();
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to cast vote.');
     }
@@ -51,27 +61,49 @@ const VoterDashboard = () => {
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
         <div className="elevated-card rounded-2xl p-8 shadow-large hover-lift">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-            <div className="flex-grow">
-              <h1 className="text-5xl font-bold text-gradient mb-3">Elections Dashboard</h1>
-              <p className="text-gray-600 text-lg">Welcome, {userProfile?.name || 'Voter'}</p>
-              <p className="text-gray-500 text-sm">{userProfile?.email}</p>
-            </div>
-            <div className="flex items-center gap-4">
-              {userProfile?.image && (
-                <img
-                  src={`http://localhost:5000${userProfile.image}`}
-                  alt="Profile"
-                  className="w-24 h-24 rounded-lg object-cover shadow-md"
-                />
-              )}
-              <div className="flex flex-col gap-3 min-w-[200px]">
-                 <Link to="/profile">
-                   <Button variant="primary" size="lg" fullWidth>
-                     Edit Profile
-                   </Button>
-                 </Link>
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
+            <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
+              <div className="flex-shrink-0">
+                {userProfile && userProfile.image ? (
+                  <img 
+                    src={`http://localhost:5000${userProfile.image}`} 
+                    alt="Profile" 
+                    className="w-48 h-48 rounded-2xl object-cover shadow-large border-4 border-white/50" 
+                  />
+                ) : (
+                  <div className="w-48 h-48 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-large border-4 border-white/50">
+                    <svg className="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                )}
               </div>
+              <div className="flex-grow text-center lg:text-left">
+                <h1 className="text-5xl font-bold text-gradient mb-3">Elections Dashboard</h1>
+                <p className="text-gray-600 text-lg mb-6">Welcome, {userProfile?.name || 'Voter'}</p>
+                 {userProfile && (
+                  <div className="glass-card rounded-xl p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-white/50 rounded-lg p-4">
+                        <span className="text-sm font-medium text-gray-500">Age</span>
+                        <p className="text-lg font-semibold text-gray-900 mt-1">{calculateAge(userProfile.dob)} years</p>
+                      </div>
+                      <div className="bg-white/50 rounded-lg p-4">
+                        <span className="text-sm font-medium text-gray-500">Location</span>
+                        <p className="text-lg font-semibold text-gray-900 mt-1">{userProfile.city}, {userProfile.state}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex flex-col gap-3 min-w-[200px]">
+               <Link to="/profile">
+                 <Button variant="primary" size="lg" fullWidth>
+                   Edit Profile
+                 </Button>
+               </Link>
             </div>
           </div>
         </div>
@@ -88,7 +120,6 @@ const VoterDashboard = () => {
                 key={election._id}
                 election={election}
                 onVote={handleVote}
-                resultsDeclared={election.resultsDeclared}
               />
             ))}
           </div>

@@ -7,6 +7,7 @@ import VoterDashboard from './pages/Dashboard/VoterDashboard';
 import CandidateDashboard from './pages/Dashboard/CandidateDashboard';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer'; // Import the new footer
 import ProfilePage from './pages/ProfilePage';
 import ManageElectionsPage from './pages/Admin/ManageElectionsPage';
 import ManageCandidatesPage from './pages/Admin/ManageCandidatesPage';
@@ -18,7 +19,7 @@ import ViewResultsPage from './pages/Admin/ViewResultsPage';
 function App() {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen bg-gray-50">
+      <div className="flex flex-col min-h-screen">
         <Navbar />
         <main className="flex-grow container mx-auto px-4 py-8">
           <Routes>
@@ -75,6 +76,7 @@ function App() {
             } />
           </Routes>
         </main>
+        <Footer /> {/* Add the new footer */}
       </div>
     </Router>
   );

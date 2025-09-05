@@ -8,7 +8,6 @@ import Button from '../components/Button';
 import AutocompleteInput from '../components/AutocompleteInput';
 import { getParties } from '../utils/api';
 
-
 const Register = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -21,16 +20,16 @@ const Register = () => {
     mobile: '',
     aadhar: '',
     address: '',
-    dob: '', // Added dob to state
+    dob: '', 
     party: '',
   });
-  const [confirmPassword, setConfirmPassword] = useState(''); // State for confirm password
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [image, setImage] = useState(null);
   const [cities, setCities] = useState([]);
   const [parties, setParties] = useState([]);
   const [error, setError] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false); // State for confirm password visibility
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -58,7 +57,6 @@ const Register = () => {
       fetchParties();
     }
   }, [formData.role]);
-
 
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -117,8 +115,8 @@ const Register = () => {
   const renderStep1 = () => (
     <>
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Create an Account (Step 1 of 2)</h2>
-        <p className="text-gray-600">Enter your basic information to get started.</p>
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h2>
+        <p className="text-gray-600">Step 1 of 2: Basic Information</p>
       </div>
       <div className="space-y-4">
         <Input type="text" name="name" value={formData.name} onChange={onChange} placeholder="Full Name" required />
@@ -157,15 +155,14 @@ const Register = () => {
   const renderStep2 = () => (
     <>
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">{`Details (Step 2 of 2)`}</h2>
-        <p className="text-gray-600">{`Please provide your details as a ${formData.role}.`}</p>
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">Your Details</h2>
+        <p className="text-gray-600">Step 2 of 2: Provide your details as a {formData.role}.</p>
       </div>
       <div className="space-y-4">
         <AutocompleteInput name="state" placeholder="State" value={formData.state} items={indianStatesCities.states.map(s => s.name)} onSelect={(value) => handleAutocompleteSelect('state', value)} required />
-        <AutocompleteInput name="city" placeholder="City" value={formData.city} items={cities} onSelect={(value) => handleAutocompleteSelect('city', value)} required disabled={!formData.state} />
+        <AutocompleteInput name="city" placeholder="City" value={formData.city} items={cities} onSelect={(value) => handleAutocompleteSelect('city', value)} required />
         <Input type="text" name="mobile" value={formData.mobile} onChange={onChange} placeholder="Mobile Number" />
         
-        {/* Date of Birth Input */}
         <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">Date of Birth</label>
             <Input type="date" name="dob" value={formData.dob} onChange={onChange} required />
@@ -175,7 +172,7 @@ const Register = () => {
           <>
             <Input type="text" name="aadhar" value={formData.aadhar} onChange={onChange} placeholder="Aadhar Card Number" />
             <Input type="text" name="address" value={formData.address} onChange={onChange} placeholder="Full Residential Address" />
-            <select name="party" value={formData.party} onChange={onChange} required className="w-full px-3 py-2 border rounded-md">
+            <select name="party" value={formData.party} onChange={onChange} required className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
               <option value="">Select a Party</option>
               {parties.map(party => (
                 <option key={party._id} value={party._id}>{party.name}</option>

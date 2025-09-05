@@ -23,7 +23,6 @@ const CandidateDashboard = () => {
         ]);
         setUserProfile(profileRes.data);
         setSelectedParty(profileRes.data.party?._id || '');
-        // Filter elections where the candidate is participating
         const candidateElections = electionsRes.data.filter(election => 
           election.candidates.some(candidate => candidate.name === profileRes.data.name)
         );
@@ -43,7 +42,6 @@ const CandidateDashboard = () => {
     setSelectedParty(partyId);
     try {
       await updateUserProfile({ party: partyId });
-      // Optionally, refetch user profile to show updated party immediately
       const profileRes = await getUserProfile();
       setUserProfile(profileRes.data);
     } catch (err) {
@@ -58,44 +56,45 @@ const CandidateDashboard = () => {
       <div className="mb-8">
         <div className="elevated-card rounded-2xl p-8 shadow-large hover-lift">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-            <div className="flex-grow">
-              <h1 className="text-5xl font-bold text-gradient mb-3">Candidate Dashboard</h1>
-              <p className="text-gray-600 text-lg">Welcome, {userProfile?.name || 'Candidate'}</p>
-              <p className="text-gray-500 text-sm">{userProfile?.email}</p>
-            </div>
-            <div className="flex items-center gap-4">
-              {userProfile?.image && (
-                <img
-                  src={`http://localhost:5000${userProfile.image}`}
-                  alt="Profile"
-                  className="w-24 h-24 rounded-lg object-cover shadow-md"
-                />
-              )}
-              <div className="flex flex-col gap-3 min-w-[200px]">
-                 <Link to="/profile">
-                   <Button variant="primary" size="lg" fullWidth>
-                     Edit Profile
-                   </Button>
-                 </Link>
-                 <div className="mt-4">
-                   <label htmlFor="party" className="block text-sm font-medium text-gray-700">
-                     Select Your Party
-                   </label>
-                   <select
-                     id="party"
-                     name="party"
-                     value={selectedParty}
-                     onChange={handlePartyChange}
-                     className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                   >
-                     <option value="">Select a party</option>
-                     {parties.map((party) => (
-                       <option key={party._id} value={party._id}>
-                         {party.name}
-                       </option>
-                     ))}
-                   </select>
-                 </div>
+            <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
+              <div className="flex-shrink-0">
+                {userProfile && userProfile.image ? (
+                  <img 
+                    src={`http://localhost:5000${userProfile.image}`} 
+                    alt="Profile" 
+                    className="w-48 h-48 rounded-2xl object-cover shadow-large border-4 border-white/50" 
+                  />
+                ) : (
+                   <div className="w-48 h-48 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-large border-4 border-white/50">
+                    <svg className="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+              <div className="flex-grow text-center lg:text-left">
+                <h1 className="text-5xl font-bold text-gradient mb-3">Candidate Dashboard</h1>
+                <p className="text-gray-600 text-lg">Welcome, {userProfile?.name || 'Candidate'}</p>
+                <p className="text-gray-500 text-sm mb-6">{userProfile?.email}</p>
+                <div className="mt-4">
+                  <label htmlFor="party" className="block text-sm font-medium text-gray-700">
+                    Your Affiliated Party
+                  </label>
+                  <select
+                    id="party"
+                    name="party"
+                    value={selectedParty}
+                    onChange={handlePartyChange}
+                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                  >
+                    <option value="">Select a party</option>
+                    {parties.map((party) => (
+                      <option key={party._id} value={party._id}>
+                        {party.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
           </div>

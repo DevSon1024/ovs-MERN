@@ -45,6 +45,17 @@ export default function ManageElectionsPage() {
     }
   }, [formData.state]);
 
+  // Set an initial valid electionType when the component loads or when electionLevel changes
+  useEffect(() => {
+    if (formData.electionLevel && electionTypesByLevel[formData.electionLevel]) {
+        const defaultType = electionTypesByLevel[formData.electionLevel][0];
+        if (formData.electionType !== defaultType) {
+            setFormData(prev => ({ ...prev, electionType: defaultType }));
+        }
+    }
+  }, [formData.electionLevel]);
+
+
   const fetchElections = async () => {
     try {
       setIsLoading(true);
@@ -58,7 +69,15 @@ export default function ManageElectionsPage() {
   };
 
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => {
+        const newState = { ...prev, [name]: value };
+        // When electionLevel changes, reset electionType to the first valid option
+        if (name === 'electionLevel') {
+            newState.electionType = electionTypesByLevel[value][0] || '';
+        }
+        return newState;
+    });
   };
 
   const handleAutocompleteSelect = (name, value) => {
@@ -69,6 +88,10 @@ export default function ManageElectionsPage() {
     e.preventDefault();
     setError('');
     setSuccess('');
+    if (!formData.electionType) {
+        setError('Please select an election type.');
+        return;
+    }
     try {
       await addElection(formData);
       setSuccess('Election added successfully!');
@@ -78,27 +101,39 @@ export default function ManageElectionsPage() {
       });
       fetchElections();
     } catch (err) {
-      setError(err.response?.data?.msg || 'Failed to add election.');
+      setError(err.response?.data?.message || err.response?.data?.msg || 'Failed to add election.');
     }
   };
 
   return (
     <div className="max-w-7xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Manage Elections</h1>
-      
-      <div className="mb-8 p-6 bg-white rounded-lg shadow-md">
+      <div className="elevated-card rounded-2xl p-6 mb-6">
+        <h1 className="text-4xl font-bold text-gradient mb-2">Election Management</h1>
+        <p className="text-gray-600">Create, manage, and oversee all electoral events.</p>
+      </div>
+
+      <div className="mb-8 p-6 professional-card hover-lift">
         <h2 className="text-2xl font-bold mb-4">Add New Election</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Alert message={error} type="error" />
           <Alert message={success} type="success" />
-          {/* Form inputs... */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input name="title" placeholder="Election Title" value={formData.title} onChange={handleInputChange} required className="w-full px-3 py-2 border rounded-md"/>
+            
             <select name="electionLevel" value={formData.electionLevel} onChange={handleInputChange} required className="w-full px-3 py-2 border rounded-md">
               {Object.keys(electionTypesByLevel).map(level => (<option key={level} value={level}>{level}</option>))}
             </select>
+            
+            {/* FIX: Added the missing Election Type dropdown */}
+            <select name="electionType" value={formData.electionType} onChange={handleInputChange} required className="w-full px-3 py-2 border rounded-md">
+                <option value="" disabled>Select Election Type</option>
+                {electionTypesByLevel[formData.electionLevel] && electionTypesByLevel[formData.electionLevel].map(type => (
+                    <option key={type} value={type}>{type}</option>
+                ))}
+            </select>
+
             <AutocompleteInput name="state" placeholder="State" value={formData.state} items={indianStatesCities.states.map(s => s.name)} onSelect={(value) => handleAutocompleteSelect('state', value)} required />
-            <AutocompleteInput name="city" placeholder="City" value={formData.city} items={cities} onSelect={(value) => handleAutocompleteSelect('city', value)} required disabled={!formData.state} />
+            <AutocompleteInput name="city" placeholder="City" value={formData.city} items={cities} onSelect={(value) => handleAutocompleteSelect('city', value)} required />
             <input type="date" name="startDate" value={formData.startDate} onChange={handleInputChange} required className="w-full px-3 py-2 border rounded-md"/>
             <input type="date" name="endDate" value={formData.endDate} onChange={handleInputChange} required className="w-full px-3 py-2 border rounded-md"/>
             <textarea name="description" placeholder="Description" value={formData.description} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md md:col-span-2"/>
