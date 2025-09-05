@@ -5,6 +5,7 @@ import {
 } from 'react-router-dom';
 import Register from './pages/Register';
 import Login from './pages/Login';
+import LandingPage from './pages/LandingPage'; // Import the new LandingPage
 import AdminDashboard from './pages/Dashboard/AdminDashboard';
 import VoterDashboard from './pages/Dashboard/VoterDashboard';
 import CandidateDashboard from './pages/Dashboard/CandidateDashboard';
@@ -14,6 +15,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<LandingPage />} /> {/* Add the root route */}
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route
