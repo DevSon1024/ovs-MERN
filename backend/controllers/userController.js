@@ -1,13 +1,12 @@
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
 import User from '../models/userModel.js';
-
 
 // @desc    Register new user
 // @route   POST /api/users/register
 // @access  Public
 const registerUser = async (req, res) => {
-  const { name, email, password, role, state, city, mobile, aadhar, address, image } = req.body;
+  const { name, email, password, role, state, city, mobile, aadhar, address, dob } = req.body; // Add dob
+  const image = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
     const userExists = await User.findOne({ email });
@@ -28,6 +27,7 @@ const registerUser = async (req, res) => {
       aadhar,
       address,
       image,
+      dob, // Add dob to the create call
     });
 
     if (user) {
@@ -81,8 +81,8 @@ const getMe = async (req, res) => {
 };
 
 // Generate JWT
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+const generateToken = (id, role) => {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET, {
     expiresIn: '30d',
   });
 };
