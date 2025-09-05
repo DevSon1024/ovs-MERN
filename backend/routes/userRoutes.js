@@ -4,8 +4,9 @@ import {
   registerUser,
   loginUser,
   getMe,
+  getUsers,
 } from '../controllers/userController.js';
-import { protect } from '../middleware/authMiddleware.js';
+import { protect, admin } from '../middleware/authMiddleware.js';
 import { check } from 'express-validator';
 
 router.post(
@@ -22,5 +23,6 @@ router.post(
 );
 router.post('/login', loginUser);
 router.get('/me', protect, getMe);
+router.get('/', protect, admin, getUsers);
 
 export default router;

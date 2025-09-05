@@ -3,7 +3,8 @@ import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 import userRoutes from './routes/userRoutes.js';
 import electionRoutes from './routes/electionRoutes.js';
-import partyRoutes from './routes/partyRoutes.js'; // Import party routes
+import partyRoutes from './routes/partyRoutes.js';
+import candidateRoutes from './routes/candidateRoutes.js'; // Import candidate routes
 import path from 'path';
 
 dotenv.config();
@@ -20,7 +21,8 @@ app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 
 app.use('/api/users', userRoutes);
 app.use('/api/elections', electionRoutes);
-app.use('/api/parties', partyRoutes); // Add party routes
+app.use('/api/parties', partyRoutes);
+app.use('/api/candidates', candidateRoutes); // Add candidate routes
 
 const PORT = process.env.PORT || 5000;
 

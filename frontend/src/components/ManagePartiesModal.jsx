@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { addParty, getParties, updateParty, deleteParty } from '../utils/api';
 import Alert from './Alert';
+import Input from './Input';
 import Button from './Button';
 
 export default function ManagePartiesModal({ onClose }) {
@@ -96,15 +97,20 @@ export default function ManagePartiesModal({ onClose }) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
       <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl relative max-h-[90vh] flex flex-col">
+        {/* Close Button */}
+        <button onClick={onClose} className="absolute top-4 right-4 text-2xl font-bold text-gray-500 hover:text-gray-800 transition-colors">
+            &times;
+        </button>
+
         <h2 className="text-2xl font-bold mb-6 text-center">Manage Parties</h2>
         
         {/* Form for Add/Edit */}
         <form onSubmit={handleSubmit} className="space-y-4 border-b pb-6 mb-6">
-          <h3>{editingId ? 'Edit Party' : 'Add New Party'}</h3>
+          <h3 className="text-lg font-semibold">{editingId ? 'Edit Party' : 'Add New Party'}</h3>
           <Alert message={error} type="error" />
           <Alert message={success} type="success" />
           
-          <input name="name" placeholder="Party Name" value={formData.name} onChange={handleInputChange} required className="w-full px-3 py-2 border rounded-md"/>
+          <Input name="name" placeholder="Party Name" value={formData.name} onChange={handleInputChange} required />
           <select name="level" value={formData.level} onChange={handleInputChange} required className="w-full px-3 py-2 border rounded-md">
             <option value="Local">Local</option>
             <option value="National">National</option>
@@ -119,7 +125,7 @@ export default function ManagePartiesModal({ onClose }) {
 
         {/* List of Existing Parties */}
         <div className="flex-grow overflow-y-auto">
-          <h3>Existing Parties</h3>
+          <h3 className="text-lg font-semibold mb-4">Existing Parties</h3>
           {isLoading ? <p>Loading...</p> : (
             <div className="space-y-2">
               {parties.map(party => (
