@@ -4,8 +4,9 @@ import Button from './Button';
 import VoteModal from './VoteModal'; 
 import AdminElectionResults from './AdminElectionResults';
 
-export default function AdminPanel({ election, onDataChange }) {
+export default function ElectionManagementCard({ election, onDataChange }) {
   const [showCandidateModal, setShowCandidateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [showResultsModal, setShowResultsModal] = useState(false);
   const [results, setResults] = useState(null);
   const [loadingResults, setLoadingResults] = useState(false);
@@ -52,11 +53,12 @@ export default function AdminPanel({ election, onDataChange }) {
   };
 
   return (
-    <div className="border rounded-lg p-6 shadow-sm">
+    <div className="border rounded-lg p-6 shadow-sm bg-white">
       <h2 className="text-2xl font-bold">{election.title}</h2>
       <p className="text-gray-600">{election.description}</p>
-      <div className="flex gap-4 mt-4">
+      <div className="flex flex-wrap gap-4 mt-4">
         <Button onClick={() => setShowCandidateModal(true)}>Add Candidate</Button>
+        <Button onClick={() => setShowEditModal(true)} variant="secondary">Edit Election</Button>
         <Button onClick={handleViewResults} disabled={loadingResults}>
           {loadingResults ? 'Loading...' : 'View Results'}
         </Button>
@@ -70,7 +72,7 @@ export default function AdminPanel({ election, onDataChange }) {
       {election.candidates.length > 0 ? (
         <ul>
           {election.candidates.map(c => (
-            <li key={c._id} className="flex justify-between items-center mt-2">
+            <li key={c._id} className="flex justify-between items-center mt-2 p-2 bg-gray-50 rounded">
               <span>{c.name} ({c.party.name})</span>
               <Button onClick={() => handleDeleteCandidate(c._id)} variant="danger" size="sm">Remove</Button>
             </li>
@@ -85,6 +87,15 @@ export default function AdminPanel({ election, onDataChange }) {
           onClose={() => setShowCandidateModal(false)}
           onSave={onDataChange}
           isCandidateModal={true}
+        />
+      )}
+
+      {showEditModal && (
+        <VoteModal
+          title="Edit Election"
+          onClose={() => setShowEditModal(false)}
+          onSave={onDataChange}
+          electionToEdit={election}
         />
       )}
       
