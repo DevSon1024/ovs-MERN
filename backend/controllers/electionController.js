@@ -59,21 +59,26 @@ const createElection = async (req, res) => {
 // @route   PUT /api/elections/:id
 // @access  Private/Admin
 const updateElection = async (req, res) => {
-  const { name, startDate, endDate } = req.body;
+    const { title, description, electionLevel, electionType, state, city, startDate, endDate } = req.body;
 
-  const election = await Election.findById(req.params.id);
+    const election = await Election.findById(req.params.id);
 
-  if (election) {
-    election.name = name;
-    election.startDate = startDate;
-    election.endDate = endDate;
+    if (election) {
+        election.title = title || election.title;
+        election.description = description || election.description;
+        election.electionLevel = electionLevel || election.electionLevel;
+        election.electionType = electionType || election.electionType;
+        election.state = state || election.state;
+        election.city = city || election.city;
+        election.startDate = startDate || election.startDate;
+        election.endDate = endDate || election.endDate;
 
-    const updatedElection = await election.save();
-    res.json(updatedElection);
-  } else {
-    res.status(404);
-    throw new Error('Election not found');
-  }
+        const updatedElection = await election.save();
+        res.json(updatedElection);
+    } else {
+        res.status(404);
+        throw new Error('Election not found');
+    }
 };
 
 // @desc    Delete an election
@@ -111,24 +116,20 @@ const castVote = async (req, res) => {
             return res.status(404).json({ message: 'Election not found' });
         }
 
-        // Check if the election is active
         const now = new Date();
         if (now < election.startDate || now > election.endDate) {
             return res.status(400).json({ message: 'Election is not active' });
         }
 
-        // Check if results are declared
         if (election.resultsDeclared) {
             return res.status(400).json({ message: 'Voting has ended for this election' });
         }
 
-        // Check if the user has already voted in this election
         const existingVote = await Vote.findOne({ voter: voterId, election: electionId });
         if (existingVote) {
             return res.status(400).json({ message: 'You have already voted in this election' });
         }
 
-        // Check if the candidate is part of the election
         const candidateInElection = election.candidates.map(c => c.toString()).includes(candidateId);
         if (!candidateInElection) {
             return res.status(400).json({ message: 'Candidate is not part of this election' });

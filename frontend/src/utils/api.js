@@ -32,6 +32,7 @@ export const getUserVoteDetails = (electionId) => api.get(`/users/vote-details/$
 // --- Election Services ---
 export const getElections = () => api.get('/elections');
 export const addElection = (electionData) => api.post('/elections', electionData);
+export const updateElection = (id, electionData) => api.put(`/elections/${id}`, electionData);
 export const deleteElection = (electionId) => api.delete(`/elections/${electionId}`);
 export const declareResults = (electionId) => api.put(`/elections/${electionId}/declare-results`);
 export const revokeResults = (electionId) => api.put(`/elections/${electionId}/revoke-results`);

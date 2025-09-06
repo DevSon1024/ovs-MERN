@@ -4,7 +4,7 @@ import { deleteElection, deleteCandidate, getAdminElectionResults, declareResult
 import Button from './Button';
 import AdminElectionResults from './AdminElectionResults';
 
-export default function ElectionManagementCard({ election, onDataChange }) {
+export default function ElectionManagementCard({ election, onDataChange, onEdit }) {
   const [showResultsModal, setShowResultsModal] = useState(false);
   const [results, setResults] = useState(null);
   const [loadingResults, setLoadingResults] = useState(false);
@@ -62,7 +62,7 @@ export default function ElectionManagementCard({ election, onDataChange }) {
 
   return (
     <div className="elevated-card rounded-2xl p-6 hover:shadow-xl transition-all duration-300 hover-lift">
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
         <div className="flex-grow">
           <div className="flex items-center gap-3 mb-2">
             <h2 className="text-2xl font-bold text-gray-900">{election.title}</h2>
@@ -71,10 +71,15 @@ export default function ElectionManagementCard({ election, onDataChange }) {
             </span>
           </div>
           <p className="text-gray-600 text-sm">{election.description}</p>
+          <div className="text-xs text-gray-500 flex flex-wrap gap-x-4 gap-y-1 mt-2 border-t pt-2">
+            <span><strong>Location:</strong> {election.city}, {election.state}</span>
+            <span><strong>Starts:</strong> {new Date(election.startDate).toLocaleDateString()}</span>
+            <span><strong>Ends:</strong> {new Date(election.endDate).toLocaleDateString()}</span>
+          </div>
         </div>
         <div className="flex flex-wrap gap-3">
-          {/* Updated this button to navigate */}
           <Button onClick={() => navigate(`/admin/election/${election._id}/candidates`)} variant="primary">Add Candidate</Button>
+          <Button onClick={onEdit} variant="secondary">Edit</Button>
           <Button onClick={handleViewResults} disabled={loadingResults} variant="glass">
             {loadingResults ? 'Loading...' : 'View Results'}
           </Button>

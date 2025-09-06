@@ -10,7 +10,7 @@ import Spinner from '../../components/Spinner';
 import Alert from '../../components/Alert';
 import Button from '../../components/Button';
 import { Link } from 'react-router-dom';
-import VoterElectionResults from '../../components/VoterElectionResults'; // Reusing the voter's result modal
+import VoterElectionResults from '../../components/VoterElectionResults';
 
 const CandidateDashboard = () => {
   const [userProfile, setUserProfile] = useState(null);
@@ -20,7 +20,6 @@ const CandidateDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
-  // State for results modal
   const [showResultsModal, setShowResultsModal] = useState(false);
   const [selectedElectionResults, setSelectedElectionResults] = useState(null);
 
@@ -85,7 +84,6 @@ const CandidateDashboard = () => {
       <div className="mb-8">
         <div className="elevated-card rounded-2xl p-8 shadow-large">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Profile Info Section */}
             <div className="lg:col-span-1 flex flex-col items-center text-center">
               {userProfile && userProfile.image ? (
                 <img 
@@ -107,7 +105,6 @@ const CandidateDashboard = () => {
               </Link>
             </div>
             
-            {/* Details & Actions Section */}
             <div className="lg:col-span-2">
               <h2 className="text-2xl font-bold text-gradient mb-4">Candidate Details</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

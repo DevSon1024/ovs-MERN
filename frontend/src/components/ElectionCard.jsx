@@ -1,6 +1,6 @@
 // frontend/src/components/ElectionCard.jsx
 import { useState, useEffect } from 'react';
-import { vote, getUserVoteDetails } from '../utils/api'; // Correctly import 'vote'
+import { vote, getUserVoteDetails } from '../utils/api';
 import Alert from './Alert';
 import Button from './Button';
 
@@ -36,19 +36,28 @@ export default function ElectionCard({ election, hasVoted, onVoteSuccess, onView
       return;
     }
     try {
-      // Correctly call the 'vote' function with the right parameters
       await vote(election._id, selectedCandidate);
       onVoteSuccess();
     } catch (err) {
       setError(err.response?.data?.message || 'An error occurred while voting.');
     }
   };
+  
+  const cardHeader = (
+    <div>
+      <h3 className="text-xl font-bold text-gray-900 mb-2">{election.title}</h3>
+      <p className="text-gray-600 text-sm mb-3">{election.description}</p>
+      <div className="text-xs text-gray-500 border-t pt-2 space-y-1">
+          <p><strong>Location:</strong> {election.city}, {election.state}</p>
+          <p><strong>Dates:</strong> {new Date(election.startDate).toLocaleDateString()} - {new Date(election.endDate).toLocaleDateString()}</p>
+      </div>
+    </div>
+  );
 
-  // This is the view for a user who has already voted
   if (hasVoted) {
     return (
       <div className="glass-effect rounded-2xl p-6 shadow-medium flex flex-col h-full">
-        <h3 className="text-xl font-bold text-gray-900">{election.title}</h3>
+        {cardHeader}
         <div className="flex-grow flex flex-col items-center justify-center my-4">
           <p className="font-semibold text-gray-800 text-center mb-2">You have already voted in this election.</p>
           {voteDetails ? (
@@ -70,11 +79,10 @@ export default function ElectionCard({ election, hasVoted, onVoteSuccess, onView
     );
   }
 
-  // This is the view for a user who has NOT voted yet
   return (
     <div className="glass-effect rounded-2xl p-6 shadow-medium flex flex-col h-full">
-      <h3 className="text-xl font-bold text-gray-900 mb-2">{election.title}</h3>
-      <p className="text-gray-600 text-sm mb-4">{election.description}</p>
+      {cardHeader}
+      <div className="border-b my-4"></div>
       
       {isElectionActive() ? (
         <form onSubmit={handleSubmitVote} className="flex-grow flex flex-col">
@@ -91,7 +99,6 @@ export default function ElectionCard({ election, hasVoted, onVoteSuccess, onView
                   className="mr-3"
                 />
                 <span className="font-semibold">{candidate.name}</span>
-                {/* SAFE ACCESS: Use optional chaining (?.) in case a candidate has no party */}
                 <span className="text-sm text-gray-600"> ({candidate.party?.name || 'No Party'})</span>
               </label>
             ))}
