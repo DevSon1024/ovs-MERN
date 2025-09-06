@@ -65,7 +65,7 @@ const VoterDashboard = () => {
       setError(err.response?.data?.msg || "Failed to fetch results.");
     }
   };
-  
+
   if (loading) return <Spinner />;
 
   return (
@@ -76,10 +76,10 @@ const VoterDashboard = () => {
             <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
               <div className="flex-shrink-0">
                 {userProfile && userProfile.image ? (
-                  <img 
-                    src={`http://localhost:5000${userProfile.image}`} 
-                    alt="Profile" 
-                    className="w-48 h-48 rounded-2xl object-cover shadow-large border-4 border-white/50" 
+                  <img
+                    src={`http://localhost:5000${userProfile.image}`}
+                    alt="Profile"
+                    className="w-48 h-48 rounded-2xl object-cover shadow-large border-4 border-white/50"
                   />
                 ) : (
                   <div className="w-48 h-48 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-large border-4 border-white/50">
@@ -108,7 +108,7 @@ const VoterDashboard = () => {
                 )}
               </div>
             </div>
-            
+
             <div className="flex flex-col gap-3 min-w-[200px]">
                <Link to="/profile">
                  <Button variant="primary" size="lg" fullWidth>
@@ -119,9 +119,9 @@ const VoterDashboard = () => {
           </div>
         </div>
       </div>
-      
+
       <Alert message={error} type="error" />
-      
+
       {!error && elections.length > 0 ? (
         <div>
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Available Elections</h2>

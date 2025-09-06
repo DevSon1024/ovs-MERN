@@ -20,7 +20,7 @@ const Register = () => {
     mobile: '',
     aadhar: '',
     address: '',
-    dob: '', 
+    dob: '',
     party: '',
   });
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -61,7 +61,7 @@ const Register = () => {
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  
+
   const handleAutocompleteSelect = (name, value) => {
     setFormData({ ...formData, [name]: value });
   };
@@ -83,7 +83,7 @@ const Register = () => {
     setError('');
     setStep(step + 1);
   };
-  
+
   const prevStep = () => setStep(step - 1);
 
   const onSubmit = async (e) => {
@@ -111,7 +111,7 @@ const Register = () => {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     }
   };
-  
+
   const renderStep1 = () => (
     <>
       <div className="text-center mb-8">
@@ -121,17 +121,17 @@ const Register = () => {
       <div className="space-y-4">
         <Input type="text" name="name" value={formData.name} onChange={onChange} placeholder="Full Name" required />
         <Input type="email" name="email" value={formData.email} onChange={onChange} placeholder="Email Address" required />
-        <Input 
-            type="password" 
-            name="password" 
-            value={formData.password} 
-            onChange={onChange} 
-            placeholder="Create a Password" 
-            required 
-            isPasswordVisible={isPasswordVisible} 
+        <Input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={onChange}
+            placeholder="Create a Password"
+            required
+            isPasswordVisible={isPasswordVisible}
             onToggleVisibility={() => setIsPasswordVisible(!isPasswordVisible)}
         />
-        <Input 
+        <Input
             type="password"
             name="confirmPassword"
             value={confirmPassword}
@@ -162,12 +162,16 @@ const Register = () => {
         <AutocompleteInput name="state" placeholder="State" value={formData.state} items={indianStatesCities.states.map(s => s.name)} onSelect={(value) => handleAutocompleteSelect('state', value)} required />
         <AutocompleteInput name="city" placeholder="City" value={formData.city} items={cities} onSelect={(value) => handleAutocompleteSelect('city', value)} required />
         <Input type="text" name="mobile" value={formData.mobile} onChange={onChange} placeholder="Mobile Number" />
-        
+
         <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">Date of Birth</label>
             <Input type="date" name="dob" value={formData.dob} onChange={onChange} required />
         </div>
-        
+
+        {formData.role === 'voter' && (
+           <Input type="text" name="address" value={formData.address} onChange={onChange} placeholder="Full Residential Address" />
+        )}
+
         {formData.role === 'candidate' && (
           <>
             <Input type="text" name="aadhar" value={formData.aadhar} onChange={onChange} placeholder="Aadhar Card Number" />

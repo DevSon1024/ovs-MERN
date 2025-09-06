@@ -38,9 +38,6 @@ const VoterDetailsModal = ({ voter, onClose }) => {
                 <strong>Mobile:</strong> {voter.mobile}
               </p>
               <p>
-                <strong>Aadhar:</strong> {voter.aadhar}
-              </p>
-              <p>
                 <strong>Address:</strong> {voter.address}
               </p>
               <p>
@@ -50,14 +47,14 @@ const VoterDetailsModal = ({ voter, onClose }) => {
                 <strong>Age:</strong> {voter.age}
               </p>
             </div>
-            
+
             {/* Party Details Section */}
             {voter.role === 'candidate' && voter.party && (
                 <div className="mt-6 border-t pt-4">
                     <h3 className="text-lg font-semibold text-gray-800 mb-3">Party Affiliation</h3>
                     <div className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg">
-                        <img 
-                            src={`http://localhost:5000${voter.party.logoUrl}`} 
+                        <img
+                            src={`http://localhost:5000${voter.party.logoUrl}`}
                             alt={voter.party.name}
                             className="w-12 h-12 rounded-md object-contain"
                         />

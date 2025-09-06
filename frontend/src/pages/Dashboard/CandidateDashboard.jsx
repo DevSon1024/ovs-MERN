@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
-import { 
-  getUserProfile, 
-  getElections, 
-  getParties, 
-  updateUserProfile, 
-  getVoterElectionResults 
+import {
+  getUserProfile,
+  getElections,
+  getParties,
+  updateUserProfile,
+  getVoterElectionResults,
+  getUserVotedElections
 } from '../../utils/api';
 import Spinner from '../../components/Spinner';
 import Alert from '../../components/Alert';
 import Button from '../../components/Button';
 import { Link } from 'react-router-dom';
 import VoterElectionResults from '../../components/VoterElectionResults';
+import ElectionCard from '../../components/ElectionCard';
 
 const CandidateDashboard = () => {
   const [userProfile, setUserProfile] = useState(null);
@@ -19,33 +21,41 @@ const CandidateDashboard = () => {
   const [selectedParty, setSelectedParty] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+  const [votedElectionIds, setVotedElectionIds] = useState(new Set());
   const [showResultsModal, setShowResultsModal] = useState(false);
   const [selectedElectionResults, setSelectedElectionResults] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [profileRes, electionsRes, partiesRes] = await Promise.all([
-          getUserProfile(),
-          getElections(),
-          getParties(),
-        ]);
-        setUserProfile(profileRes.data);
-        setSelectedParty(profileRes.data.party?._id || '');
-        const candidateElections = electionsRes.data.filter(election => 
-          election.candidates.some(candidate => candidate.name === profileRes.data.name)
-        );
-        setElections(candidateElections);
+   const fetchDashboardData = async () => {
+    try {
+      const [electionsRes, profileRes, votedRes, partiesRes] = await Promise.all([
+        getElections(),
+        getUserProfile(),
+        getUserVotedElections(),
+        getParties(),
+      ]);
+
+      setElections(electionsRes.data);
+      setUserProfile(profileRes.data);
+      setVotedElectionIds(new Set(votedRes.data));
+       setSelectedParty(profileRes.data.party?._id || '');
         setParties(partiesRes.data);
-      } catch (err) {
-        setError('Could not fetch dashboard data.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    } catch (err) {
+      setError('Could not connect to the server. Please check your connection and try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchDashboardData();
   }, []);
+
+   const handleVoteSuccess = () => {
+    // Refetch data to update the UI after a vote is cast
+    fetchDashboardData();
+  };
+
 
   const handlePartyChange = async (e) => {
     const partyId = e.target.value;
@@ -86,10 +96,10 @@ const CandidateDashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-1 flex flex-col items-center text-center">
               {userProfile && userProfile.image ? (
-                <img 
-                  src={`http://localhost:5000${userProfile.image}`} 
-                  alt="Profile" 
-                  className="w-48 h-48 rounded-2xl object-cover shadow-large border-4 border-white/50 mb-4" 
+                <img
+                  src={`http://localhost:5000${userProfile.image}`}
+                  alt="Profile"
+                  className="w-48 h-48 rounded-2xl object-cover shadow-large border-4 border-white/50 mb-4"
                 />
               ) : (
                  <div className="w-48 h-48 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-large border-4 border-white/50 mb-4">
@@ -104,7 +114,7 @@ const CandidateDashboard = () => {
                 <Button variant="secondary" size="sm">Edit Profile</Button>
               </Link>
             </div>
-            
+
             <div className="lg:col-span-2">
               <h2 className="text-2xl font-bold text-gradient mb-4">Candidate Details</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -144,43 +154,22 @@ const CandidateDashboard = () => {
           </div>
         </div>
       </div>
-      
+
       <Alert message={error} type="error" />
 
       <div>
         <h2 className="text-3xl font-bold text-gray-800 mb-6">Your Elections</h2>
         {elections.length > 0 ? (
-          <div className="space-y-6">
-            {elections.map(election => {
-              const status = getElectionStatus(election);
-              return (
-                <div key={election._id} className="professional-card p-6 hover-lift">
-                  <div className="flex flex-col md:flex-row justify-between md:items-start gap-4">
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-xl font-bold text-gray-900">{election.title}</h3>
-                        <span className={`px-3 py-1 text-xs font-semibold rounded-full ${status.color}`}>
-                          {status.text}
-                        </span>
-                      </div>
-                      <p className="text-gray-600 text-sm mb-3">{election.description}</p>
-                      <div className="text-xs text-gray-500 flex flex-wrap gap-x-4 gap-y-1">
-                        <span><strong>Location:</strong> {election.city}, {election.state}</span>
-                        <span><strong>Starts:</strong> {new Date(election.startDate).toLocaleDateString()}</span>
-                        <span><strong>Ends:</strong> {new Date(election.endDate).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                    {election.resultsDeclared && (
-                      <div className="flex-shrink-0">
-                         <Button onClick={() => handleViewResults(election._id)} variant="primary">
-                            View Results
-                         </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {elections.map(election => (
+              <ElectionCard
+                key={election._id}
+                election={election}
+                hasVoted={votedElectionIds.has(election._id)}
+                onVoteSuccess={handleVoteSuccess}
+                onViewResults={() => handleViewResults(election._id)}
+              />
+            ))}
           </div>
         ) : (
           <div className="text-center py-12 bg-white/50 rounded-2xl">

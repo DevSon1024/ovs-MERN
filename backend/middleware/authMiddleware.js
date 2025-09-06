@@ -59,4 +59,13 @@ const candidate = (req, res, next) => {
   }
 };
 
-export { protect, admin, voter, candidate };
+const voterOrCandidate = (req, res, next) => {
+  if (req.user && (req.user.role === 'voter' || req.user.role === 'candidate')) {
+    next();
+  } else {
+    res.status(401);
+    throw new Error('Not authorized as a voter or candidate');
+  }
+};
+
+export { protect, admin, voter, candidate, voterOrCandidate };
