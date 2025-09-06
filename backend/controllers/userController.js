@@ -1,6 +1,10 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
+import Vote from '../models/voteModel.js';
 
+// @desc    Register new user
+// @route   POST /api/users/register
+// @access  Public
 // @desc    Register new user
 // @route   POST /api/users/register
 // @access  Public
@@ -129,6 +133,26 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
+// @desc    Delete user profile
+// @route   DELETE /api/users/profile
+// @access  Private
+const deleteUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+      // Use the deleteOne method on the document
+      await user.deleteOne();
+      res.json({ message: 'User removed' });
+    } else {
+      res.status(404);
+      throw new Error('User not found');
+    }
+  } catch (error) {
+     res.status(500).json({ message: error.message || 'Server Error' });
+  }
+};
+
 // Generate JWT
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, {
@@ -136,4 +160,51 @@ const generateToken = (id, role) => {
   });
 };
 
-export { registerUser, loginUser, getMe, getUsers, updateUserProfile };
+// @desc    Get IDs of elections a user has voted in
+// @route   GET /api/users/voted-elections
+// @access  Private
+const getUserVotedElections = async (req, res) => {
+  try {
+    const votes = await Vote.find({ voter: req.user._id }).select('election');
+    const electionIds = votes.map(vote => vote.election);
+    res.json(electionIds);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+// @desc    Get details of a user's vote in a specific election
+// @route   GET /api/users/vote-details/:electionId
+// @access  Private
+const getUserVoteDetails = async (req, res) => {
+    try {
+        const vote = await Vote.findOne({
+            voter: req.user._id,
+            election: req.params.electionId
+        }).populate({
+            path: 'candidate',
+            populate: {
+                path: 'party',
+                model: 'Party'
+            }
+        });
+
+        if (!vote) {
+            return res.status(404).json({ msg: 'Vote not found' });
+        }
+
+        res.json({
+            candidateId: vote.candidate._id,
+            candidateName: vote.candidate.name,
+            candidateParty: vote.candidate.party.name,
+            votedAt: vote.createdAt
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
+
+export { registerUser, loginUser, getMe, getUsers, updateUserProfile, deleteUserProfile, getUserVotedElections, getUserVoteDetails };

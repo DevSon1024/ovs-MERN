@@ -16,6 +16,9 @@ api.interceptors.request.use((config) => {
   return config;
 }, (error) => Promise.reject(error));
 
+export const getUserVotedElections = () => api.get('/users/voted-elections');
+export const getUserVoteDetails = (electionId) => api.get(`/users/vote-details/${electionId}`);
+
 // --- Auth & User Services ---
 export const registerUser = (formData) => api.post('/users/register', formData);
 export const loginUser = (credentials) => api.post('/users/login', credentials);

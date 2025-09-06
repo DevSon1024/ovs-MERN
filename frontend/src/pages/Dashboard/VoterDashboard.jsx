@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
-import { getElections, getUserProfile, vote } from '../../utils/api';
+import { getElections, getUserProfile, vote, getUserVotedElections } from '../../utils/api';
 import Spinner from '../../components/Spinner';
 import Alert from '../../components/Alert';
 import Button from '../../components/Button';
 import { Link } from 'react-router-dom';
-import ElectionCard from '../../components/ElectionCard'; 
+import ElectionCard from '../../components/ElectionCard';
 
 const VoterDashboard = () => {
   const [elections, setElections] = useState([]);
   const [userProfile, setUserProfile] = useState(null);
+  const [votedElectionIds, setVotedElectionIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -26,14 +27,16 @@ const VoterDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const [electionsRes, profileRes] = await Promise.all([
+      const [electionsRes, profileRes, votedRes] = await Promise.all([
         getElections(),
-        getUserProfile()
+        getUserProfile(),
+        getUserVotedElections(),
       ]);
-      
+
       setElections(electionsRes.data);
       setUserProfile(profileRes.data);
-      
+      setVotedElectionIds(new Set(votedRes.data.map(String)));
+
     } catch (err) {
       setError('Could not connect to the server. Please check your connection and try again.');
     } finally {
@@ -45,6 +48,11 @@ const VoterDashboard = () => {
     setLoading(true);
     fetchDashboardData();
   }, []);
+
+  const handleVoteSuccess = () => {
+    // Refetch all data to update the UI
+    fetchDashboardData();
+  };
 
   const handleVote = async (electionId, candidateId) => {
     try {
@@ -119,7 +127,8 @@ const VoterDashboard = () => {
               <ElectionCard
                 key={election._id}
                 election={election}
-                onVote={handleVote}
+                hasVoted={votedElectionIds.has(election._id)}
+                onVoteSuccess={handleVoteSuccess}
               />
             ))}
           </div>

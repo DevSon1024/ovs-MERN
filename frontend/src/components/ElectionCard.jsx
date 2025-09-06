@@ -1,47 +1,107 @@
-import { useState } from 'react';
-import Button from './Button';
-import VoteModal from './VoteModal';
+// frontend/src/components/ElectionCard.jsx
 
-const ElectionCard = ({ election, onVote }) => {
-  const [showVoteModal, setShowVoteModal] = useState(false);
+import { useState, useEffect } from 'react';
+import { castVote, getUserVoteDetails } from '../utils/api';
+import Alert from './Alert';
+import Button from './Button';
+
+export default function ElectionCard({ election, hasVoted, onVoteSuccess }) {
+  const [selectedCandidate, setSelectedCandidate] = useState('');
+  const [error, setError] = useState('');
+  const [voteDetails, setVoteDetails] = useState(null);
+
+  const isElectionActive = () => {
+    const now = new Date();
+    return new Date(election.startDate) <= now && new Date(election.endDate) >= now;
+  };
+
+  useEffect(() => {
+    const fetchVoteDetails = async () => {
+      if (hasVoted) {
+        try {
+          const { data } = await getUserVoteDetails(election._id);
+          setVoteDetails(data);
+        } catch (err) {
+          console.error('Error fetching vote details:', err);
+        }
+      }
+    };
+    fetchVoteDetails();
+  }, [hasVoted, election._id]);
+
+  const handleSubmitVote = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!selectedCandidate) {
+      setError('Please select a candidate before casting your vote.');
+      return;
+    }
+    try {
+      await castVote(election._id, { candidateId: selectedCandidate });
+      onVoteSuccess();
+    } catch (err) {
+      setError(err.response?.data?.msg || 'An error occurred while voting.');
+    }
+  };
+
+  if (hasVoted) {
+    return (
+        <div className="glass-effect rounded-2xl p-6 shadow-medium flex flex-col h-full">
+            <h3 className="text-xl font-bold text-gray-900">{election.title}</h3>
+            <div className="flex-grow flex flex-col items-center justify-center my-4">
+                <p className="font-semibold text-gray-800 text-center mb-2">You have already voted in this election.</p>
+                {voteDetails && (
+                    <div className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3">
+                        <span className="text-sm font-medium text-gray-500">Your Vote (Locked)</span>
+                        <div className="font-semibold text-gray-900">{voteDetails.candidateName}</div>
+                        <div className="text-sm text-gray-600">({voteDetails.candidateParty})</div>
+                    </div>
+                )}
+            </div>
+            {election.resultsDeclared ? (
+                <Button variant="primary" fullWidth>View Results</Button>
+            ) : (
+                <div className="text-center text-gray-600 font-semibold py-2">
+                    Results are not yet declared.
+                </div>
+            )}
+        </div>
+    );
+  }
 
   return (
-    <>
-      <div className="border p-4 rounded-md shadow-sm bg-white">
-        <h3 className="font-bold">{election.title}</h3>
-        <p>{election.description}</p>
-        {!election.resultsDeclared ? (
-          <Button onClick={() => setShowVoteModal(true)} className="mt-4">
-            Vote
-          </Button>
-        ) : (
-          <div className="mt-4">
-            <h4 className="font-semibold">Results:</h4>
-            <ul>
-              {election.candidates.map(candidate => (
-                <li key={candidate._id}>
-                  {candidate.name}: {candidate.votes}
-                </li>
-              ))}
-            </ul>
+    <div className="glass-effect rounded-2xl p-6 shadow-medium flex flex-col h-full">
+      <h3 className="text-xl font-bold text-gray-900 mb-2">{election.title}</h3>
+      <p className="text-gray-600 text-sm mb-4">{election.description}</p>
+      
+      {isElectionActive() ? (
+        <form onSubmit={handleSubmitVote} className="flex-grow flex flex-col">
+          <Alert message={error} type="error" />
+          <div className="flex-grow space-y-3">
+            {election.candidates.map(candidate => (
+              <label key={candidate._id} className={`block p-3 rounded-lg cursor-pointer border-2 ${selectedCandidate === candidate._id ? 'bg-indigo-50 border-indigo-300' : 'bg-white/60 border-gray-200'}`}>
+                <input
+                  type="radio"
+                  name={`election-${election._id}`}
+                  value={candidate._id}
+                  checked={selectedCandidate === candidate._id}
+                  onChange={() => setSelectedCandidate(candidate._id)}
+                  className="mr-3"
+                />
+                <span className="font-semibold">{candidate.name}</span>
+                <span className="text-sm text-gray-600"> ({candidate.party.name})</span>
+              </label>
+            ))}
           </div>
-        )}
-      </div>
-      {showVoteModal && (
-        <VoteModal
-          title={`Vote in ${election.title}`}
-          electionId={election._id}
-          candidates={election.candidates}
-          onClose={() => setShowVoteModal(false)}
-          onSave={(candidateId) => {
-            onVote(election._id, candidateId);
-            setShowVoteModal(false);
-          }}
-          isCandidateModal={false}
-        />
+          <Button type="submit" variant="primary" fullWidth className="mt-4">
+            Cast Your Vote
+          </Button>
+        </form>
+      ) : (
+        <div className="text-center text-gray-600 font-semibold py-2 mt-auto">
+          Voting is not currently active for this election.
+        </div>
       )}
-    </>
+    </div>
   );
-};
-
-export default ElectionCard;
+}

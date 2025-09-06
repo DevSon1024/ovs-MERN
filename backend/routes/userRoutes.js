@@ -1,3 +1,5 @@
+// backend/routes/userRoutes.js
+
 import express from 'express';
 const router = express.Router();
 import {
@@ -5,7 +7,10 @@ import {
   loginUser,
   getMe,
   getUsers,
-  updateUserProfile
+  updateUserProfile,
+  deleteUserProfile,
+  getUserVotedElections, // New import
+  getUserVoteDetails, // New import
 } from '../controllers/userController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 import { check } from 'express-validator';
@@ -24,7 +29,12 @@ router.post(
 );
 router.post('/login', loginUser);
 router.get('/me', protect, getMe);
-router.put('/profile', protect, updateUserProfile); // Added route
+router.put('/profile', protect, updateUserProfile);
+router.delete('/profile', protect, deleteUserProfile);
 router.get('/', protect, admin, getUsers);
+
+// --- New Routes for Voter History ---
+router.get('/voted-elections', protect, getUserVotedElections);
+router.get('/vote-details/:electionId', protect, getUserVoteDetails);
 
 export default router;
