@@ -14,9 +14,11 @@ import {
 } from '../controllers/userController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 import { check } from 'express-validator';
+import upload from '../config/multerConfig.js'; // Import multer config
 
 router.post(
   '/register',
+  upload.single('image'), // Add multer middleware to handle the image file upload
   [
     check('name', 'Name is required').not().isEmpty(),
     check('email', 'Please include a valid email').isEmail(),

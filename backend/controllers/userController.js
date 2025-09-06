@@ -5,9 +5,6 @@ import Vote from '../models/voteModel.js';
 // @desc    Register new user
 // @route   POST /api/users/register
 // @access  Public
-// @desc    Register new user
-// @route   POST /api/users/register
-// @access  Public
 const registerUser = async (req, res) => {
   const { name, email, password, role, state, city, mobile, aadhar, address, dob, party } = req.body;
   const image = req.file ? `/uploads/${req.file.filename}` : null;
@@ -20,7 +17,7 @@ const registerUser = async (req, res) => {
       throw new Error('User already exists');
     }
 
-    const user = await User.create({
+    const userData = {
       name,
       email,
       password,
@@ -32,8 +29,14 @@ const registerUser = async (req, res) => {
       address,
       image,
       dob,
-      party
-    });
+    };
+    
+    // Only add party if it exists and is not an empty string
+    if (party) {
+        userData.party = party;
+    }
+
+    const user = await User.create(userData);
 
     if (user) {
       res.status(201).json({
