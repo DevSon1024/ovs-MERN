@@ -1,15 +1,14 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { deleteElection, deleteCandidate, getAdminElectionResults, declareResults, revokeResults } from '../utils/api';
 import Button from './Button';
-import VoteModal from './VoteModal';
 import AdminElectionResults from './AdminElectionResults';
 
 export default function ElectionManagementCard({ election, onDataChange }) {
-  const [showCandidateModal, setShowCandidateModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showResultsModal, setShowResultsModal] = useState(false);
   const [results, setResults] = useState(null);
   const [loadingResults, setLoadingResults] = useState(false);
+  const navigate = useNavigate();
 
   const handleDeclare = async () => {
     try {
@@ -74,7 +73,8 @@ export default function ElectionManagementCard({ election, onDataChange }) {
           <p className="text-gray-600 text-sm">{election.description}</p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Button onClick={() => setShowCandidateModal(true)} variant="primary">Add Candidate</Button>
+          {/* Updated this button to navigate */}
+          <Button onClick={() => navigate(`/admin/election/${election._id}/candidates`)} variant="primary">Add Candidate</Button>
           <Button onClick={handleViewResults} disabled={loadingResults} variant="glass">
             {loadingResults ? 'Loading...' : 'View Results'}
           </Button>
@@ -103,25 +103,6 @@ export default function ElectionManagementCard({ election, onDataChange }) {
           <p className="text-center text-gray-500 py-4">No candidates added yet.</p>
         )}
       </div>
-
-      {showCandidateModal && (
-        <VoteModal
-          title="Add Candidate"
-          electionId={election._id}
-          onClose={() => setShowCandidateModal(false)}
-          onSave={onDataChange}
-          isCandidateModal={true}
-        />
-      )}
-
-      {showEditModal && (
-        <VoteModal
-          title="Edit Election"
-          onClose={() => setShowEditModal(false)}
-          onSave={onDataChange}
-          electionToEdit={election}
-        />
-      )}
 
       {showResultsModal && results && (
         <AdminElectionResults

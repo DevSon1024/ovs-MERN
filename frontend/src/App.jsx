@@ -10,11 +10,10 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProfilePage from './pages/ProfilePage';
 import ManageElectionsPage from './pages/Admin/ManageElectionsPage';
-import ManageCandidatesPage from './pages/Admin/ManageCandidatesPage';
 import ManagePartiesPage from './pages/Admin/ManagePartiesPage';
 import VoterManagementPage from './pages/Admin/VoterManagementPage';
 import ViewResultsPage from './pages/Admin/ViewResultsPage';
-
+import AddCandidatesToElectionPage from './pages/Admin/AddCandidatesToElectionPage'; // Import the new page
 
 function App() {
   return (
@@ -44,9 +43,10 @@ function App() {
                 <ManageElectionsPage />
               </PrivateRoute>
             } />
-            <Route path="/admin/candidates" element={
+            {/* New route for adding candidates to a specific election */}
+            <Route path="/admin/election/:electionId/candidates" element={
               <PrivateRoute role="admin">
-                <ManageCandidatesPage />
+                <AddCandidatesToElectionPage />
               </PrivateRoute>
             } />
             <Route path="/admin/parties" element={
