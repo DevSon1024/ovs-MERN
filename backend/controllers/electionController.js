@@ -2,6 +2,7 @@ import Election from '../models/electionModel.js';
 import Candidate from '../models/candidateModel.js';
 import Vote from '../models/voteModel.js';
 import Party from '../models/partyModel.js';
+import mongoose from 'mongoose';
 
 // @desc    Get all elections
 // @route   GET /api/elections
@@ -187,8 +188,8 @@ const revokeResults = async (req, res) => {
     }
 };
 
-// @desc    Get election results
-// @route   GET /api/elections/results/:id
+// @desc    Get election results for admins
+// @route   GET /api/elections/results/:id/admin
 // @access  Private/Admin
 const getAdminElectionResults = async (req, res) => {
     try {
@@ -209,24 +210,11 @@ const getAdminElectionResults = async (req, res) => {
                 candidateId: '$_id', 
                 name: '$candidateDetails.name', 
                 party: '$partyDetails.name', 
-                votes: '$count' } }
+                votes: '$count' } },
+            { $sort: { votes: -1 } }
         ]);
-        
-        const voterDetails = await Vote.find({ election: electionId })
-            .populate('voter', 'name email')
-            .populate({
-                path: 'candidate',
-                populate: { path: 'party', model: 'Party' }
-            })
-            .sort({ createdAt: -1 });
-        
-        const voters = voterDetails.map(vote => ({
-            voterName: vote.voter.name,
-            voterEmail: vote.voter.email,
-            candidateName: vote.candidate.name,
-            candidateParty: vote.candidate.party.name,
-            votedAt: vote.createdAt
-        }));
+
+        const leadingCandidate = results.length > 0 ? results[0] : null;
         
         res.json({
             election: {
@@ -236,14 +224,58 @@ const getAdminElectionResults = async (req, res) => {
                 endDate: election.endDate
             },
             results,
-            voters,
-            totalVotes: voters.length
+            totalVotes: results.reduce((acc, curr) => acc + curr.votes, 0),
+            leadingCandidate
         });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
     }
 };
+
+// @desc    Get election results for voters
+// @route   GET /api/elections/results/:id/voter
+// @access  Public
+const getVoterElectionResults = async (req, res) => {
+    try {
+        const electionId = req.params.id;
+        
+        const election = await Election.findById(electionId);
+        if (!election) return res.status(404).json({ msg: 'Election not found' });
+        
+        if (!election.resultsDeclared) {
+            return res.status(403).json({ msg: 'Results not declared yet.' });
+        }
+
+        const results = await Vote.aggregate([
+            { $match: { election: new mongoose.Types.ObjectId(electionId) } },
+            { $group: { _id: '$candidate', count: { $sum: 1 } } },
+            { $lookup: { from: 'candidates', localField: '_id', foreignField: '_id', as: 'candidateDetails' } },
+            { $unwind: '$candidateDetails' },
+            { $lookup: { from: 'parties', localField: 'candidateDetails.party', foreignField: '_id', as: 'partyDetails' } },
+            { $unwind: '$partyDetails' },
+            { $project: { 
+                _id: 0, 
+                candidateId: '$_id', 
+                name: '$candidateDetails.name', 
+                party: '$partyDetails.name', 
+                votes: '$count' } }
+        ]);
+        
+        res.json({
+            election: {
+                title: election.title,
+                description: election.description,
+            },
+            results,
+            totalVotes: results.reduce((acc, curr) => acc + curr.votes, 0),
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
 
 export {
     getElections,
@@ -254,5 +286,6 @@ export {
     declareResults,
     revokeResults,
     getAdminElectionResults,
+    getVoterElectionResults,
     castVote
 };

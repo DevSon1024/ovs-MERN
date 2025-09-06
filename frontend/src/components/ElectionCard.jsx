@@ -4,7 +4,7 @@ import { vote, getUserVoteDetails } from '../utils/api'; // Correctly import 'vo
 import Alert from './Alert';
 import Button from './Button';
 
-export default function ElectionCard({ election, hasVoted, onVoteSuccess }) {
+export default function ElectionCard({ election, hasVoted, onVoteSuccess, onViewResults }) {
   const [selectedCandidate, setSelectedCandidate] = useState('');
   const [error, setError] = useState('');
   const [voteDetails, setVoteDetails] = useState(null);
@@ -60,7 +60,7 @@ export default function ElectionCard({ election, hasVoted, onVoteSuccess }) {
           ) : <div className="text-sm text-gray-500">Loading vote details...</div>}
         </div>
         {election.resultsDeclared ? (
-          <Button variant="primary" fullWidth>View Results</Button>
+          <Button variant="primary" fullWidth onClick={onViewResults}>View Results</Button>
         ) : (
           <div className="text-center text-gray-600 font-semibold py-2">
             Results are not yet declared.

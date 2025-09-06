@@ -9,6 +9,7 @@ import {
   declareResults,
   revokeResults,
   getAdminElectionResults,
+  getVoterElectionResults,
   castVote,
 } from '../controllers/electionController.js';
 import { protect, admin, voter } from '../middleware/authMiddleware.js';
@@ -21,8 +22,8 @@ router
     .delete(protect, admin, deleteElection);
 router.put('/:id/declare-results', protect, admin, declareResults);
 router.put('/:id/revoke-results', protect, admin, revokeResults);
-router.get('/results/:id', protect, admin, getAdminElectionResults);
+router.get('/results/:id/admin', protect, admin, getAdminElectionResults);
+router.get('/results/:id/voter', getVoterElectionResults);
 router.post('/:id/vote', protect, voter, castVote);
-
 
 export default router;

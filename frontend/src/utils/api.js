@@ -35,7 +35,9 @@ export const addElection = (electionData) => api.post('/elections', electionData
 export const deleteElection = (electionId) => api.delete(`/elections/${electionId}`);
 export const declareResults = (electionId) => api.put(`/elections/${electionId}/declare-results`);
 export const revokeResults = (electionId) => api.put(`/elections/${electionId}/revoke-results`);
-export const getAdminElectionResults = (electionId) => api.get(`/elections/results/${electionId}`);
+export const getAdminElectionResults = (electionId) => api.get(`/elections/results/${electionId}/admin`);
+export const getVoterElectionResults = (electionId) => api.get(`/elections/results/${electionId}/voter`);
+
 
 // --- Party Services ---
 export const addParty = (formData) => api.post('/parties', formData, { headers: { 'Content-Type': 'multipart/form-data' } });

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getElections, getAdminElectionResults } from '../../utils/api';
 import AdminElectionResults from '../../components/AdminElectionResults';
 import Spinner from '../../components/Spinner';
+import Button from '../../components/Button';
 
 export default function ViewResultsPage() {
     const [elections, setElections] = useState([]);
@@ -34,15 +35,18 @@ export default function ViewResultsPage() {
 
     return (
         <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl font-bold mb-6">View Election Results</h1>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="elevated-card rounded-2xl p-6 mb-6">
+                <h1 className="text-4xl font-bold text-gradient mb-2">View Election Results</h1>
+                <p className="text-gray-600">Select an election to view detailed results.</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {elections.map(election => (
-                    <div key={election._id} className="border p-4 rounded-md shadow-sm bg-white">
-                        <h3 className="font-bold">{election.title}</h3>
-                        <p>{election.description}</p>
-                        <button onClick={() => handleViewResults(election._id)} className="text-blue-500 mt-2">
+                    <div key={election._id} className="professional-card p-4 hover-lift">
+                        <h3 className="font-bold text-lg mb-2">{election.title}</h3>
+                        <p className="text-sm text-gray-600 mb-4">{election.description}</p>
+                        <Button onClick={() => handleViewResults(election._id)} fullWidth>
                             View Results
-                        </button>
+                        </Button>
                     </div>
                 ))}
             </div>

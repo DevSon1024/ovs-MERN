@@ -7,7 +7,7 @@ import VoterDashboard from './pages/Dashboard/VoterDashboard';
 import CandidateDashboard from './pages/Dashboard/CandidateDashboard';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
-import Footer from './components/Footer'; // Import the new footer
+import Footer from './components/Footer';
 import ProfilePage from './pages/ProfilePage';
 import ManageElectionsPage from './pages/Admin/ManageElectionsPage';
 import ManageCandidatesPage from './pages/Admin/ManageCandidatesPage';
@@ -77,7 +77,7 @@ function App() {
             <Route path="*" element={<h1>404 Not Found</h1>} />
           </Routes>
         </main>
-        <Footer /> {/* Add the new footer */}
+        <Footer />
       </div>
     </Router>
   );

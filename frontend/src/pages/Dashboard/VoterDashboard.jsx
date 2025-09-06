@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { getElections, getUserProfile, getUserVotedElections } from '../../utils/api';
+import { getElections, getUserProfile, getUserVotedElections, getVoterElectionResults } from '../../utils/api';
 import Spinner from '../../components/Spinner';
 import Alert from '../../components/Alert';
 import Button from '../../components/Button';
 import { Link } from 'react-router-dom';
 import ElectionCard from '../../components/ElectionCard';
+import VoterElectionResults from '../../components/VoterElectionResults';
 
 const VoterDashboard = () => {
   const [elections, setElections] = useState([]);
@@ -12,6 +13,8 @@ const VoterDashboard = () => {
   const [votedElectionIds, setVotedElectionIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showResultsModal, setShowResultsModal] = useState(false);
+  const [selectedElectionResults, setSelectedElectionResults] = useState(null);
 
   const calculateAge = (dob) => {
     if (!dob) return null;
@@ -53,12 +56,13 @@ const VoterDashboard = () => {
     fetchDashboardData();
   };
 
-  const handleVote = async (electionId, candidateId) => {
+  const handleViewResults = async (electionId) => {
     try {
-      await vote(electionId, candidateId);
-      fetchDashboardData();
-    } catch (error) {
-      setError(error.response?.data?.message || 'Failed to cast vote.');
+      const { data } = await getVoterElectionResults(electionId);
+      setSelectedElectionResults(data);
+      setShowResultsModal(true);
+    } catch (err) {
+      setError(err.response?.data?.msg || "Failed to fetch results.");
     }
   };
   
@@ -128,6 +132,7 @@ const VoterDashboard = () => {
                 election={election}
                 hasVoted={votedElectionIds.has(election._id)}
                 onVoteSuccess={handleVoteSuccess}
+                onViewResults={() => handleViewResults(election._id)}
               />
             ))}
           </div>
@@ -138,6 +143,9 @@ const VoterDashboard = () => {
             <p>No elections are available at the moment.</p>
           </div>
         )
+      )}
+      {showResultsModal && selectedElectionResults && (
+        <VoterElectionResults results={selectedElectionResults} onClose={() => setShowResultsModal(false)} />
       )}
     </div>
   );
