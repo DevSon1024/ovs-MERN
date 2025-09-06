@@ -166,7 +166,7 @@ const generateToken = (id, role) => {
 const getUserVotedElections = async (req, res) => {
   try {
     const votes = await Vote.find({ voter: req.user._id }).select('election');
-    const electionIds = votes.map(vote => vote.election);
+    const electionIds = votes.map(vote => vote.election.toString());
     res.json(electionIds);
   } catch (err) {
     console.error(err.message);
@@ -207,4 +207,12 @@ const getUserVoteDetails = async (req, res) => {
 };
 
 
-export { registerUser, loginUser, getMe, getUsers, updateUserProfile, deleteUserProfile, getUserVotedElections, getUserVoteDetails };
+export { registerUser, 
+  loginUser, 
+  getMe, 
+  getUsers, 
+  updateUserProfile, 
+  deleteUserProfile, 
+  getUserVotedElections, 
+  getUserVoteDetails 
+};

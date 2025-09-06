@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getElections, getUserProfile, vote, getUserVotedElections } from '../../utils/api';
+import { getElections, getUserProfile, getUserVotedElections } from '../../utils/api';
 import Spinner from '../../components/Spinner';
 import Alert from '../../components/Alert';
 import Button from '../../components/Button';
@@ -30,12 +30,12 @@ const VoterDashboard = () => {
       const [electionsRes, profileRes, votedRes] = await Promise.all([
         getElections(),
         getUserProfile(),
-        getUserVotedElections(),
+        getUserVotedElections()
       ]);
 
       setElections(electionsRes.data);
       setUserProfile(profileRes.data);
-      setVotedElectionIds(new Set(votedRes.data.map(String)));
+      setVotedElectionIds(new Set(votedRes.data));
 
     } catch (err) {
       setError('Could not connect to the server. Please check your connection and try again.');
@@ -45,12 +45,11 @@ const VoterDashboard = () => {
   };
 
   useEffect(() => {
-    setLoading(true);
     fetchDashboardData();
   }, []);
 
   const handleVoteSuccess = () => {
-    // Refetch all data to update the UI
+    // Refetch data to update the UI after a vote is cast
     fetchDashboardData();
   };
 

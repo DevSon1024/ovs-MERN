@@ -1,7 +1,6 @@
 // frontend/src/components/ElectionCard.jsx
-
 import { useState, useEffect } from 'react';
-import { castVote, getUserVoteDetails } from '../utils/api';
+import { vote, getUserVoteDetails } from '../utils/api'; // Correctly import 'vote'
 import Alert from './Alert';
 import Button from './Button';
 
@@ -37,38 +36,41 @@ export default function ElectionCard({ election, hasVoted, onVoteSuccess }) {
       return;
     }
     try {
-      await castVote(election._id, { candidateId: selectedCandidate });
+      // Correctly call the 'vote' function with the right parameters
+      await vote(election._id, selectedCandidate);
       onVoteSuccess();
     } catch (err) {
-      setError(err.response?.data?.msg || 'An error occurred while voting.');
+      setError(err.response?.data?.message || 'An error occurred while voting.');
     }
   };
 
+  // This is the view for a user who has already voted
   if (hasVoted) {
     return (
-        <div className="glass-effect rounded-2xl p-6 shadow-medium flex flex-col h-full">
-            <h3 className="text-xl font-bold text-gray-900">{election.title}</h3>
-            <div className="flex-grow flex flex-col items-center justify-center my-4">
-                <p className="font-semibold text-gray-800 text-center mb-2">You have already voted in this election.</p>
-                {voteDetails && (
-                    <div className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3">
-                        <span className="text-sm font-medium text-gray-500">Your Vote (Locked)</span>
-                        <div className="font-semibold text-gray-900">{voteDetails.candidateName}</div>
-                        <div className="text-sm text-gray-600">({voteDetails.candidateParty})</div>
-                    </div>
-                )}
+      <div className="glass-effect rounded-2xl p-6 shadow-medium flex flex-col h-full">
+        <h3 className="text-xl font-bold text-gray-900">{election.title}</h3>
+        <div className="flex-grow flex flex-col items-center justify-center my-4">
+          <p className="font-semibold text-gray-800 text-center mb-2">You have already voted in this election.</p>
+          {voteDetails ? (
+            <div className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3">
+              <span className="text-sm font-medium text-gray-500">Your Vote (Locked)</span>
+              <div className="font-semibold text-gray-900">{voteDetails.candidateName}</div>
+              <div className="text-sm text-gray-600">({voteDetails.candidateParty})</div>
             </div>
-            {election.resultsDeclared ? (
-                <Button variant="primary" fullWidth>View Results</Button>
-            ) : (
-                <div className="text-center text-gray-600 font-semibold py-2">
-                    Results are not yet declared.
-                </div>
-            )}
+          ) : <div className="text-sm text-gray-500">Loading vote details...</div>}
         </div>
+        {election.resultsDeclared ? (
+          <Button variant="primary" fullWidth>View Results</Button>
+        ) : (
+          <div className="text-center text-gray-600 font-semibold py-2">
+            Results are not yet declared.
+          </div>
+        )}
+      </div>
     );
   }
 
+  // This is the view for a user who has NOT voted yet
   return (
     <div className="glass-effect rounded-2xl p-6 shadow-medium flex flex-col h-full">
       <h3 className="text-xl font-bold text-gray-900 mb-2">{election.title}</h3>
@@ -89,7 +91,8 @@ export default function ElectionCard({ election, hasVoted, onVoteSuccess }) {
                   className="mr-3"
                 />
                 <span className="font-semibold">{candidate.name}</span>
-                <span className="text-sm text-gray-600"> ({candidate.party.name})</span>
+                {/* SAFE ACCESS: Use optional chaining (?.) in case a candidate has no party */}
+                <span className="text-sm text-gray-600"> ({candidate.party?.name || 'No Party'})</span>
               </label>
             ))}
           </div>

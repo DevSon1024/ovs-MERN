@@ -9,8 +9,8 @@ import {
   getUsers,
   updateUserProfile,
   deleteUserProfile,
-  getUserVotedElections, // New import
-  getUserVoteDetails, // New import
+  getUserVotedElections,
+  getUserVoteDetails,
 } from '../controllers/userController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 import { check } from 'express-validator';

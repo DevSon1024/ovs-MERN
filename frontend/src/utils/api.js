@@ -1,6 +1,6 @@
+// frontend/src/utils/api.js
 import axios from 'axios';
 
-// The Vite proxy will handle redirecting this to http://localhost:5000/api
 const API_URL = '/api';
 
 const api = axios.create({
@@ -16,16 +16,18 @@ api.interceptors.request.use((config) => {
   return config;
 }, (error) => Promise.reject(error));
 
-export const getUserVotedElections = () => api.get('/users/voted-elections');
-export const getUserVoteDetails = (electionId) => api.get(`/users/vote-details/${electionId}`);
-
 // --- Auth & User Services ---
 export const registerUser = (formData) => api.post('/users/register', formData);
 export const loginUser = (credentials) => api.post('/users/login', credentials);
 export const getUserProfile = () => api.get('/users/me');
 export const getUsers = () => api.get('/users');
 export const updateUserProfile = (userData) => api.put('/users/profile', userData);
+export const deleteUserProfile = () => api.delete('/users/profile');
+
+// --- Vote Service (Voter) ---
 export const vote = (electionId, candidateId) => api.post(`/elections/${electionId}/vote`, { candidateId });
+export const getUserVotedElections = () => api.get('/users/voted-elections');
+export const getUserVoteDetails = (electionId) => api.get(`/users/vote-details/${electionId}`);
 
 // --- Election Services ---
 export const getElections = () => api.get('/elections');
@@ -44,5 +46,3 @@ export const deleteParty = (id) => api.delete(`/parties/${id}`);
 // --- Candidate Services ---
 export const addCandidate = (candidateData) => api.post('/candidates', candidateData);
 export const deleteCandidate = (candidateId) => api.delete(`/candidates/${candidateId}`);
-
-export const deleteUserProfile = () => api.delete('/users/profile');
