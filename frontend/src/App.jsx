@@ -14,6 +14,7 @@ import ManagePartiesPage from './pages/Admin/ManagePartiesPage';
 import VoterManagementPage from './pages/Admin/VoterManagementPage';
 import ViewResultsPage from './pages/Admin/ViewResultsPage';
 import AddCandidatesToElectionPage from './pages/Admin/AddCandidatesToElectionPage'; // Import the new page
+import ManageCandidatesDetailsPage from './pages/Admin/ManageCandidatesDetailsPage';
 
 function App() {
   return (
@@ -57,6 +58,11 @@ function App() {
             <Route path="/admin/voters" element={
               <PrivateRoute role="admin">
                 <VoterManagementPage />
+              </PrivateRoute>
+            } />
+            <Route path="/admin/candidates-details" element={
+              <PrivateRoute role="admin">
+                <ManageCandidatesDetailsPage />
               </PrivateRoute>
             } />
             <Route path="/admin/results" element={

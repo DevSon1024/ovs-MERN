@@ -34,10 +34,10 @@ const AdminDashboard = () => {
             <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
               <div className="flex-shrink-0">
                 {adminProfile && adminProfile.image ? (
-                  <img 
-                    src={`http://localhost:5000${adminProfile.image}`} 
-                    alt="Admin Profile" 
-                    className="w-48 h-48 rounded-2xl object-cover shadow-large border-4 border-white/50" 
+                  <img
+                    src={`http://localhost:5000${adminProfile.image}`}
+                    alt="Admin Profile"
+                    className="w-48 h-48 rounded-2xl object-cover shadow-large border-4 border-white/50"
                   />
                 ) : (
                   <div className="w-48 h-48 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-large border-4 border-white/50">
@@ -59,6 +59,9 @@ const AdminDashboard = () => {
                   </Link>
                   <Link to="/admin/voters">
                     <Button variant="outline" size="lg" fullWidth>Voter Management</Button>
+                  </Link>
+                  <Link to="/admin/candidates-details">
+                    <Button variant="outline" size="lg" fullWidth>Candidate Management</Button>
                   </Link>
                    <Link to="/profile">
                     <Button variant="secondary" size="lg" fullWidth>Edit Profile</Button>
