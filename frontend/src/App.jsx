@@ -15,6 +15,7 @@ import VoterManagementPage from './pages/Admin/VoterManagementPage';
 import ViewResultsPage from './pages/Admin/ViewResultsPage';
 import AddCandidatesToElectionPage from './pages/Admin/AddCandidatesToElectionPage'; // Import the new page
 import ManageCandidatesDetailsPage from './pages/Admin/ManageCandidatesDetailsPage';
+import AboutPage from './pages/AboutPage';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/about" element={<AboutPage />} />
 
             {/* Protected Routes */}
             <Route path="/profile" element={

@@ -31,6 +31,9 @@ export default function LandingPage() {
             <Link to="/login">
               <Button variant="secondary" size="lg">Sign In</Button>
             </Link>
+            <Link to="/about">
+              <Button variant="ghost" size="lg">About Project</Button>
+            </Link>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 mt-16">

@@ -53,6 +53,12 @@ export default function Navbar() {
                 >
                   Profile
                 </Link>
+                 <Link 
+                  to="/about" 
+                  className="text-gray-700 hover:text-indigo-600 font-medium px-3 py-2 rounded-lg hover:bg-white/20 transition-all duration-200"
+                >
+                  About
+                </Link>
                 <Button 
                   onClick={handleLogout} 
                   variant="primary"
@@ -63,6 +69,12 @@ export default function Navbar() {
               </>
             ) : (
               <>
+                 <Link 
+                  to="/about" 
+                  className="text-gray-700 hover:text-indigo-600 font-medium px-3 py-2 rounded-lg hover:bg-white/20 transition-all duration-200"
+                >
+                  About
+                </Link>
                 <Link 
                   to="/login" 
                   className="text-gray-700 hover:text-indigo-600 font-medium px-3 py-2 rounded-lg hover:bg-white/20 transition-all duration-200"
