@@ -37,10 +37,10 @@ const AdminDashboard = () => {
                   <img
                     src={`http://localhost:5000${adminProfile.image}`}
                     alt="Admin Profile"
-                    className="w-48 h-48 rounded-2xl object-cover shadow-large border-4 border-white/50"
+                    className="w-48 h-48 rounded-full object-cover shadow-large border-4 border-white/50"
                   />
                 ) : (
-                  <div className="w-48 h-48 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-large border-4 border-white/50">
+                  <div className="w-48 h-48 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-large border-4 border-white/50">
                     <svg className="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
@@ -50,7 +50,7 @@ const AdminDashboard = () => {
               <div className="flex-grow text-center lg:text-left">
                 <h1 className="text-5xl font-bold text-gradient mb-3">Admin Dashboard</h1>
                 <p className="text-gray-600 text-lg mb-6">Welcome, {adminProfile?.name || 'Admin'}</p>
-                <div className="flex flex-col gap-3 min-w-[200px] w-full lg:w-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
                   <Link to="/admin/elections">
                     <Button variant="primary" size="lg" fullWidth>Manage Elections</Button>
                   </Link>

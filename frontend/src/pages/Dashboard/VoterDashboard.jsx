@@ -79,10 +79,10 @@ const VoterDashboard = () => {
                   <img
                     src={`http://localhost:5000${userProfile.image}`}
                     alt="Profile"
-                    className="w-48 h-48 rounded-2xl object-cover shadow-large border-4 border-white/50"
+                    className="w-48 h-48 rounded-full object-cover shadow-large border-4 border-white/50"
                   />
                 ) : (
-                  <div className="w-48 h-48 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-large border-4 border-white/50">
+                  <div className="w-48 h-48 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-large border-4 border-white/50">
                     <svg className="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
@@ -124,7 +124,7 @@ const VoterDashboard = () => {
 
       {!error && elections.length > 0 ? (
         <div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Available Elections</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Available Elections</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {elections.map(election => (
               <ElectionCard

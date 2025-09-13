@@ -99,10 +99,10 @@ const CandidateDashboard = () => {
                 <img
                   src={`http://localhost:5000${userProfile.image}`}
                   alt="Profile"
-                  className="w-48 h-48 rounded-2xl object-cover shadow-large border-4 border-white/50 mb-4"
+                  className="w-48 h-48 rounded-full object-cover shadow-large border-4 border-white/50 mb-4"
                 />
               ) : (
-                 <div className="w-48 h-48 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-large border-4 border-white/50 mb-4">
+                 <div className="w-48 h-48 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-large border-4 border-white/50 mb-4">
                   <svg className="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
