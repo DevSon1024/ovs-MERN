@@ -31,7 +31,6 @@ const registerUser = async (req, res) => {
       dob,
     };
     
-    // Only add party if it exists and is not an empty string
     if (party) {
         userData.party = party;
     }
@@ -114,9 +113,18 @@ const updateUserProfile = async (req, res) => {
   if (user) {
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
+    
+    // Update password if provided
     if (req.body.password) {
       user.password = req.body.password;
     }
+    
+    // Allow updating other profile fields
+    user.state = req.body.state || user.state;
+    user.city = req.body.city || user.city;
+    user.mobile = req.body.mobile || user.mobile;
+    user.address = req.body.address || user.address;
+
     if (req.body.party) {
         user.party = req.body.party;
     }
@@ -129,6 +137,8 @@ const updateUserProfile = async (req, res) => {
       email: updatedUser.email,
       role: updatedUser.role,
       party: updatedUser.party,
+      city: updatedUser.city,
+      state: updatedUser.state
     });
   } else {
     res.status(404);
@@ -144,7 +154,6 @@ const deleteUserProfile = async (req, res) => {
     const user = await User.findById(req.user._id);
 
     if (user) {
-      // Use the deleteOne method on the document
       await user.deleteOne();
       res.json({ message: 'User removed' });
     } else {
@@ -156,7 +165,6 @@ const deleteUserProfile = async (req, res) => {
   }
 };
 
-// Generate JWT
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, {
     expiresIn: '30d',
@@ -209,13 +217,4 @@ const getUserVoteDetails = async (req, res) => {
     }
 };
 
-
-export { registerUser, 
-  loginUser, 
-  getMe, 
-  getUsers, 
-  updateUserProfile, 
-  deleteUserProfile, 
-  getUserVotedElections, 
-  getUserVoteDetails 
-};
+export { registerUser, loginUser, getMe, getUsers, updateUserProfile, deleteUserProfile, getUserVotedElections, getUserVoteDetails };
