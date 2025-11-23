@@ -2,22 +2,22 @@ import React from 'react';
 
 const teamMembers = [
   {
-    name: 'Dev Son',
-    roleNumber: '12345',
+    name: 'Devendra Prabhakar Sonawane',
+    roleNumber: '2548008',
     contributions: 'Lead Developer - Worked on backend architecture, database design, and API development. Implemented user authentication and voting logic.',
-    avatarUrl: 'https://placehold.co/128x128/667eea/ffffff?text=DS'
+    avatarUrl: 'https://i.ibb.co/zh66fdzJ/Gemini-AI-Generated-Image-6bxr1h6bxr1h6bxr.png'
   },
   {
-    name: 'Partner Two',
-    roleNumber: '67890',
+    name: 'Shivam Das',
+    roleNumber: '2548032',
     contributions: 'Frontend Developer - Designed and developed the user interface, created reusable React components, and handled state management.',
     avatarUrl: 'https://placehold.co/128x128/764ba2/ffffff?text=P2'
   },
   {
-    name: 'Partner Three',
-    roleNumber: '11223',
+    name: 'Dipika Mahendra Prasad Yadav',
+    roleNumber: '2548005',
     contributions: 'UI/UX Designer & Tester - Created wireframes and mockups, ensured a user-friendly experience, and performed quality assurance testing.',
-    avatarUrl: 'https://placehold.co/128x128/5a67d8/ffffff?text=P3'
+    avatarUrl: 'https://i.ibb.co/wZZmP7s6/Whats-App-Image-2025-09-15-at-18-53-12-473bfac8.jpg'
   }
 ];
 

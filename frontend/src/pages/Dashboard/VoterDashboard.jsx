@@ -90,7 +90,7 @@ const VoterDashboard = () => {
                 )}
               </div>
               <div className="flex-grow text-center lg:text-left">
-                <h1 className="text-5xl font-bold text-gradient mb-3">Elections Dashboard</h1>
+                <h1 className="text-5xl font-bold text-gradient mb-3">Voter Dashboard</h1>
                 <p className="text-gray-600 text-lg mb-6">Welcome, {userProfile?.name || 'Voter'}</p>
                  {userProfile && (
                   <div className="glass-card rounded-xl p-6">

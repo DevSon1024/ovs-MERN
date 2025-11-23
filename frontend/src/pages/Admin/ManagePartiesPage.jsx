@@ -93,7 +93,7 @@ export default function ManagePartiesPage() {
   return (
     <div className="max-w-7xl mx-auto">
         <div className="elevated-card rounded-2xl p-6 mb-6">
-            <h1 className="text-4xl font-bold text-gradient mb-2">Party Management</h1>
+            <h1 className="text-2xl font-bold text-gradient mb-2">Party Management</h1>
             <p className="text-gray-600">Administer political parties and their details.</p>
         </div>
 

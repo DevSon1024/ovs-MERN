@@ -1,7 +1,6 @@
 {
   "name": "online-voting-sysetm-mern",
   "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
     "start": "concurrently \"npm run start --prefix backend\" \"npm run dev --prefix frontend\"",
     "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""

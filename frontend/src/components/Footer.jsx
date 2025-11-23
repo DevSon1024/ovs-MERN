@@ -14,11 +14,11 @@ export default function Footer() {
             </div>
           </div>
           
-          <div className="flex items-center gap-6 text-sm text-gray-600 mb-4 md:mb-0">
+          {/* <div className="flex items-center gap-6 text-sm text-gray-600 mb-4 md:mb-0">
             <a href="#" className="hover:text-indigo-600 transition-colors duration-200">Privacy Policy</a>
             <a href="#" className="hover:text-indigo-600 transition-colors duration-200">Terms of Service</a>
             <a href="#" className="hover:text-indigo-600 transition-colors duration-200">Support</a>
-          </div>
+          </div> */}
           
           <p className="text-sm text-gray-500">
             &copy; {currentYear} VoteChain. All Rights Reserved.
