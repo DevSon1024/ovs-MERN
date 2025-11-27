@@ -6,7 +6,7 @@ export default function Button({
   size = 'md',
   className = '', 
   disabled = false,
-  fullWidth = false 
+  fullWidth = false
 }) {
   const baseClasses = 'inline-flex justify-center items-center gap-2 border border-transparent font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ease-in-out';
   

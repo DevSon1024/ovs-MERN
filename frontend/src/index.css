@@ -123,3 +123,92 @@ body {
 .hover-scale:hover {
   transform: none;
 }
+
+@layer components {
+  /* Base button styles */
+  button {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 
+           border-2 shadow-sm hover:shadow-md active:scale-95;
+  }
+
+  /* Primary button */
+  .btn-primary {
+    @apply bg-blue-600 text-white border-blue-700 
+           hover:bg-blue-700 hover:border-blue-800
+           focus:ring-2 focus:ring-blue-300 focus:outline-none;
+  }
+
+  /* Secondary button */
+  .btn-secondary {
+    @apply bg-white text-gray-700 border-gray-300 
+           hover:bg-gray-50 hover:border-gray-400
+           focus:ring-2 focus:ring-gray-200 focus:outline-none;
+  }
+
+  /* Success button */
+  .btn-success {
+    @apply bg-green-600 text-white border-green-700 
+           hover:bg-green-700 hover:border-green-800
+           focus:ring-2 focus:ring-green-300 focus:outline-none;
+  }
+
+  /* Danger button */
+  .btn-danger {
+    @apply bg-red-600 text-white border-red-700 
+           hover:bg-red-700 hover:border-red-800
+           focus:ring-2 focus:ring-red-300 focus:outline-none;
+  }
+
+  /* Warning button */
+  .btn-warning {
+    @apply bg-yellow-500 text-white border-yellow-600 
+           hover:bg-yellow-600 hover:border-yellow-700
+           focus:ring-2 focus:ring-yellow-300 focus:outline-none;
+  }
+
+  /* Info button */
+  .btn-info {
+    @apply bg-cyan-600 text-white border-cyan-700 
+           hover:bg-cyan-700 hover:border-cyan-800
+           focus:ring-2 focus:ring-cyan-300 focus:outline-none;
+  }
+
+  /* Outline variants */
+  .btn-outline-primary {
+    @apply bg-transparent text-blue-600 border-blue-600 
+           hover:bg-blue-50 hover:text-blue-700 hover:border-blue-700
+           focus:ring-2 focus:ring-blue-200 focus:outline-none;
+  }
+
+  .btn-outline-secondary {
+    @apply bg-transparent text-gray-600 border-gray-400 
+           hover:bg-gray-50 hover:text-gray-700 hover:border-gray-500
+           focus:ring-2 focus:ring-gray-200 focus:outline-none;
+  }
+
+  /* Gradient button (special) */
+  .btn-gradient {
+    @apply bg-gradient-to-r from-purple-600 to-pink-600 text-white 
+           border-2 border-purple-700 hover:from-purple-700 hover:to-pink-700
+           focus:ring-2 focus:ring-purple-300 focus:outline-none;
+  }
+
+  /* Size variants */
+  .btn-sm {
+    @apply px-3 py-1.5 text-sm rounded-md;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-lg rounded-xl;
+  }
+
+  /* Icon button */
+  .btn-icon {
+    @apply p-2 rounded-full aspect-square flex items-center justify-center;
+  }
+
+  /* Disabled state */
+  button:disabled {
+    @apply opacity-50 cursor-not-allowed hover:shadow-sm active:scale-100;
+  }
+}
