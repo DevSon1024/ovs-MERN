@@ -1,154 +1,218 @@
 import { useState, useEffect } from 'react';
-import { getElections, getUserProfile, getUserVotedElections, getVoterElectionResults } from '../../utils/api';
+import { useNavigate } from 'react-router-dom';
+import { getElections } from '../../utils/api';
+import { useAuth } from '../../hooks/AuthContext';
+import { getUserProfile, updateUserProfile } from '../../utils/api';
 import Spinner from '../../components/Spinner';
 import Alert from '../../components/Alert';
 import Button from '../../components/Button';
-import { Link } from 'react-router-dom';
-import ElectionCard from '../../components/ElectionCard';
-import VoterElectionResults from '../../components/VoterElectionResults';
+import LocationUpdateModal from '../../components/LocationUpdateModal';
 
-const VoterDashboard = () => {
+export default function VoterDashboard() {
   const [elections, setElections] = useState([]);
-  const [userProfile, setUserProfile] = useState(null);
-  const [votedElectionIds, setVotedElectionIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [showResultsModal, setShowResultsModal] = useState(false);
-  const [selectedElectionResults, setSelectedElectionResults] = useState(null);
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const calculateAge = (dob) => {
-    if (!dob) return null;
-    const birthDate = new Date(dob);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    return age;
-  };
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  const fetchDashboardData = async () => {
+  const fetchData = async () => {
     try {
-      const [electionsRes, profileRes, votedRes] = await Promise.all([
+      const [electionsRes, profileRes] = await Promise.all([
         getElections(),
-        getUserProfile(),
-        getUserVotedElections()
+        getUserProfile()
       ]);
-
+      
       setElections(electionsRes.data);
-      setUserProfile(profileRes.data);
-      setVotedElectionIds(new Set(votedRes.data));
-
+      setCurrentUser(profileRes.data);
+      
+      // Show location modal if location not updated
+      if (!profileRes.data.locationUpdated || !profileRes.data.state || !profileRes.data.city) {
+        setShowLocationModal(true);
+      }
     } catch (err) {
-      setError('Could not connect to the server. Please check your connection and try again.');
+      setError('Failed to load dashboard data.');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const handleVoteSuccess = () => {
-    // Refetch data to update the UI after a vote is cast
-    fetchDashboardData();
+  const handleLocationUpdate = async (formData) => {
+    try {
+      await updateUserProfile(formData);
+      setShowLocationModal(false);
+      
+      // Refresh user data
+      const { data } = await getUserProfile();
+      setCurrentUser(data);
+      
+      alert('Location updated successfully! You can now vote in elections.');
+    } catch (err) {
+      setError('Failed to update location. Please try again.');
+    }
   };
 
-  const handleViewResults = async (electionId) => {
-    try {
-      const { data } = await getVoterElectionResults(electionId);
-      setSelectedElectionResults(data);
-      setShowResultsModal(true);
-    } catch (err) {
-      setError(err.response?.data?.msg || "Failed to fetch results.");
+  const filterActiveElections = () => {
+    const now = new Date();
+    return elections.filter(election => {
+      const start = new Date(election.startDate);
+      const end = new Date(election.endDate);
+      return now >= start && now <= end;
+    });
+  };
+
+  const filterUpcomingElections = () => {
+    const now = new Date();
+    return elections.filter(election => new Date(election.startDate) > now);
+  };
+
+  const filterCompletedElections = () => {
+    const now = new Date();
+    return elections.filter(election => new Date(election.endDate) < now);
+  };
+
+  const handleVote = (electionId) => {
+    if (!currentUser?.locationUpdated || !currentUser?.state || !currentUser?.city) {
+      setShowLocationModal(true);
+      return;
     }
+    navigate(`/vote/${electionId}`);
   };
 
   if (loading) return <Spinner />;
 
-  return (
-    <div className="max-w-7xl mx-auto">
-      <div className="mb-8">
-        <div className="elevated-card rounded-2xl p-8 shadow-large hover-lift">
-          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
-            <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
-              <div className="flex-shrink-0">
-                {userProfile && userProfile.image ? (
-                  <img
-                    src={`http://localhost:5000${userProfile.image}`}
-                    alt="Profile"
-                    className="w-48 h-48 rounded-full object-cover shadow-large border-4 border-white/50"
-                  />
-                ) : (
-                  <div className="w-48 h-48 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-large border-4 border-white/50">
-                    <svg className="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </div>
-                )}
-              </div>
-              <div className="flex-grow text-center lg:text-left">
-                <h1 className="text-5xl font-bold text-gradient mb-3">Voter Dashboard</h1>
-                <p className="text-gray-600 text-lg mb-6">Welcome, {userProfile?.name || 'Voter'}</p>
-                 {userProfile && (
-                  <div className="glass-card rounded-xl p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-white/50 rounded-lg p-4">
-                        <span className="text-sm font-medium text-gray-500">Age</span>
-                        <p className="text-lg font-semibold text-gray-900 mt-1">{calculateAge(userProfile.dob)} years</p>
-                      </div>
-                      <div className="bg-white/50 rounded-lg p-4">
-                        <span className="text-sm font-medium text-gray-500">Location</span>
-                        <p className="text-lg font-semibold text-gray-900 mt-1">{userProfile.city}, {userProfile.state}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+  const activeElections = filterActiveElections();
+  const upcomingElections = filterUpcomingElections();
+  const completedElections = filterCompletedElections();
 
-            <div className="flex flex-col gap-3 min-w-[200px]">
-               <Link to="/profile">
-                 <Button variant="primary" size="lg" fullWidth>
-                   Edit Profile
-                 </Button>
-               </Link>
+  return (
+    <div className="max-w-7xl mx-auto space-y-8">
+      {/* Location Update Alert */}
+      {currentUser && (!currentUser.locationUpdated || !currentUser.state || !currentUser.city) && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">⚠️</span>
+            <div className="flex-1">
+              <h3 className="font-semibold text-yellow-900 mb-1">
+                Location Update Required
+              </h3>
+              <p className="text-sm text-yellow-700 mb-3">
+                Please update your State and City to vote in elections. Location-based voting ensures you can only vote in elections for your area.
+              </p>
+              <Button size="sm" onClick={() => setShowLocationModal(true)}>
+                Update Location Now
+              </Button>
             </div>
           </div>
+        </div>
+      )}
+
+      <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-10 shadow-sm">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Voter Dashboard</h1>
+          <p className="text-gray-500">View and participate in elections</p>
+        </div>
+
+        <Alert message={error} type="error" />
+
+        {/* Active Elections */}
+        <div className="mb-10">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="text-green-600">🔴</span> Active Elections
+          </h2>
+          {activeElections.length === 0 ? (
+            <p className="text-gray-500 text-center py-8">No active elections at the moment</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {activeElections.map((election) => (
+                <div key={election._id} className="border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{election.title}</h3>
+                  <p className="text-sm text-gray-600 mb-3">{election.description}</p>
+                  
+                  <div className="space-y-1 text-sm text-gray-600 mb-4">
+                    <p>📍 Level: <span className="font-medium">{election.electionLevel}</span></p>
+                    {election.state && (
+                      <p>🏛️ State: <span className="font-medium">{election.state}</span></p>
+                    )}
+                    {election.city && (
+                      <p>🏙️ City: <span className="font-medium">{election.city}</span></p>
+                    )}
+                    <p>📅 Ends: <span className="font-medium">{new Date(election.endDate).toLocaleString()}</span></p>
+                  </div>
+                  
+                  <Button onClick={() => handleVote(election._id)} className="w-full">
+                    Cast Your Vote
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Upcoming Elections */}
+        <div className="mb-10">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="text-blue-600">📅</span> Upcoming Elections
+          </h2>
+          {upcomingElections.length === 0 ? (
+            <p className="text-gray-500 text-center py-8">No upcoming elections scheduled</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {upcomingElections.map((election) => (
+                <div key={election._id} className="border border-gray-200 rounded-xl p-4">
+                  <h3 className="font-bold text-gray-900 mb-1">{election.title}</h3>
+                  <p className="text-xs text-gray-600 mb-2">{election.description}</p>
+                  <p className="text-sm text-gray-600">
+                    📍 {election.electionLevel}
+                    {election.city && ` - ${election.city}`}
+                    {election.state && `, ${election.state}`}
+                  </p>
+                  <p className="text-sm text-blue-600 font-medium mt-2">
+                    Starts: {new Date(election.startDate).toLocaleDateString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Completed Elections */}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="text-gray-600">✅</span> Completed Elections
+          </h2>
+          {completedElections.length === 0 ? (
+            <p className="text-gray-500 text-center py-8">No completed elections yet</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {completedElections.map((election) => (
+                <div key={election._id} className="border border-gray-200 rounded-xl p-5">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{election.title}</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Ended: {new Date(election.endDate).toLocaleDateString()}
+                  </p>
+                  <Button onClick={() => navigate(`/results/${election._id}`)} variant="secondary" className="w-full">
+                    View Results
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      <Alert message={error} type="error" />
-
-      {!error && elections.length > 0 ? (
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Available Elections</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {elections.map(election => (
-              <ElectionCard
-                key={election._id}
-                election={election}
-                hasVoted={votedElectionIds.has(election._id)}
-                onVoteSuccess={handleVoteSuccess}
-                onViewResults={() => handleViewResults(election._id)}
-              />
-            ))}
-          </div>
-        </div>
-      ) : (
-        !loading && !error && (
-          <div className="text-center py-16">
-            <p>No elections are available at the moment.</p>
-          </div>
-        )
-      )}
-      {showResultsModal && selectedElectionResults && (
-        <VoterElectionResults results={selectedElectionResults} onClose={() => setShowResultsModal(false)} />
-      )}
+      {/* Location Update Modal */}
+      <LocationUpdateModal
+        isOpen={showLocationModal}
+        onClose={() => setShowLocationModal(false)}
+        onUpdate={handleLocationUpdate}
+        currentUser={currentUser}
+      />
     </div>
   );
-};
-
-export default VoterDashboard;
+}
