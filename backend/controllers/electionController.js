@@ -260,9 +260,14 @@ const getVoterElectionResults = async (req, res) => {
                 candidateId: '$_id', 
                 name: '$candidateDetails.name', 
                 party: '$partyDetails.name', 
-                votes: '$count' } }
+                votes: '$count' } },
+            // Sort by votes descending to easily find the winner
+            { $sort: { votes: -1 } }
         ]);
         
+        // Identify the leading candidate (the first one after sorting)
+        const leadingCandidate = results.length > 0 ? results[0] : null;
+
         res.json({
             election: {
                 title: election.title,
@@ -270,6 +275,7 @@ const getVoterElectionResults = async (req, res) => {
             },
             results,
             totalVotes: results.reduce((acc, curr) => acc + curr.votes, 0),
+            leadingCandidate // Include leading candidate in response
         });
     } catch (err) {
         console.error(err.message);

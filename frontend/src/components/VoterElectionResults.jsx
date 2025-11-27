@@ -5,6 +5,8 @@ const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#3B82F6'
 
 export default function VoterElectionResults({ results, onClose }) {
   const totalVotes = results.totalVotes || 0;
+  // Access the leading candidate data provided by the backend
+  const leadingCandidate = results.leadingCandidate;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -14,10 +16,16 @@ export default function VoterElectionResults({ results, onClose }) {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold mb-2">{results.election.title} - Results</h2>
-              <div className="flex items-center gap-4 mt-3 text-sm">
+              <div className="flex items-center gap-4 mt-3 text-sm flex-wrap">
                 <div className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full">
                   <span>{totalVotes} Total Votes</span>
                 </div>
+                {/* Display Leading Candidate if available */}
+                {leadingCandidate && (
+                  <div className="flex items-center gap-1 bg-green-400/80 px-2 py-1 rounded-full">
+                    <span>🏆 Leading: {leadingCandidate.name} ({leadingCandidate.votes} votes)</span>
+                  </div>
+                )}
               </div>
             </div>
             <button
