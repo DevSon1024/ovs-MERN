@@ -41,7 +41,7 @@ export default function AboutPage() {
       <div className="elevated-card rounded-2xl p-8 mb-8 text-center">
         <h1 className="text-5xl font-bold text-gradient mb-3">About VoteChain</h1>
         <p className="text-gray-600 text-lg max-w-3xl mx-auto">
-          This project is a secure, transparent, and reliable online voting system built using the MERN stack. Our goal is to provide an accessible and trustworthy platform for conducting elections.
+          This project is a secure, transparent, and reliable online voting system built using the MERN stack. Our goal is to provide an accessible and trustworthy platform for working elections.
         </p>
       </div>
 
@@ -58,7 +58,7 @@ export default function AboutPage() {
       </div>
 
       <div className="professional-card p-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Our Team</h2>
+        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Our Group AWD_514</h2>
         <div className="space-y-8">
           {teamMembers.map((member) => (
             <div key={member.name} className="glass-card p-6 rounded-2xl md:flex md:items-center md:gap-8">

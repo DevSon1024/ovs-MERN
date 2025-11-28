@@ -70,6 +70,21 @@ const Register = () => {
     setImage(e.target.files[0]);
   };
 
+  // Helper function to calculate age
+  const calculateAge = (dob) => {
+    if (!dob) return 0;
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  };
+
   const nextStep = () => {
     if (!formData.name || !formData.email || !formData.password || !confirmPassword) {
       return setError('Please fill in all required fields.');
@@ -88,8 +103,21 @@ const Register = () => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate date of birth
     if (!formData.dob) {
-        return setError('Please provide your date of birth.');
+      return setError('Please provide your date of birth.');
+    }
+
+    // Calculate age and validate eligibility
+    const age = calculateAge(formData.dob);
+
+    if (formData.role === 'voter' && age < 18) {
+      return setError(`You are not eligible for voting. You must be at least 18 years old. Your current age is ${age} years.`);
+    }
+
+    if (formData.role === 'candidate' && age < 25) {
+      return setError(`You are not eligible to be a candidate. You must be at least 25 years old. Your current age is ${age} years.`);
     }
 
     const finalFormData = new FormData();
@@ -108,7 +136,12 @@ const Register = () => {
       });
       navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      // Handle eligibility errors from backend
+      if (err.response?.data?.eligibilityError) {
+        setError(err.response.data.message);
+      } else {
+        setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      }
     }
   };
 
@@ -122,28 +155,28 @@ const Register = () => {
         <Input type="text" name="name" value={formData.name} onChange={onChange} placeholder="Full Name" required />
         <Input type="email" name="email" value={formData.email} onChange={onChange} placeholder="Email Address" required />
         <Input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={onChange}
-            placeholder="Create a Password"
-            required
-            isPasswordVisible={isPasswordVisible}
-            onToggleVisibility={() => setIsPasswordVisible(!isPasswordVisible)}
+          type="password"
+          name="password"
+          value={formData.password}
+          onChange={onChange}
+          placeholder="Create a Password"
+          required
+          isPasswordVisible={isPasswordVisible}
+          onToggleVisibility={() => setIsPasswordVisible(!isPasswordVisible)}
         />
         <Input
-            type="password"
-            name="confirmPassword"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm Password"
-            required
-            isPasswordVisible={isConfirmPasswordVisible}
-            onToggleVisibility={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)}
+          type="password"
+          name="confirmPassword"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          placeholder="Confirm Password"
+          required
+          isPasswordVisible={isConfirmPasswordVisible}
+          onToggleVisibility={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)}
         />
         <select name="role" value={formData.role} onChange={onChange} className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
-          <option value="voter">Register as a Voter</option>
-          <option value="candidate">Register as a Candidate</option>
+          <option value="voter">Register as a Voter (18+ years)</option>
+          <option value="candidate">Register as a Candidate (25+ years)</option>
         </select>
       </div>
       <Button type="button" onClick={nextStep} className="mt-6" fullWidth>
@@ -157,6 +190,12 @@ const Register = () => {
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-gray-900 mb-2">Your Details</h2>
         <p className="text-gray-600">Step 2 of 2: Provide your details as a {formData.role}.</p>
+        {formData.role === 'voter' && (
+          <p className="text-sm text-indigo-600 mt-2">Note: You must be at least 18 years old to register as a voter</p>
+        )}
+        {formData.role === 'candidate' && (
+          <p className="text-sm text-indigo-600 mt-2">Note: You must be at least 25 years old to register as a candidate</p>
+        )}
       </div>
       <div className="space-y-4">
         <AutocompleteInput name="state" placeholder="State" value={formData.state} items={indianStatesCities.states.map(s => s.name)} onSelect={(value) => handleAutocompleteSelect('state', value)} required />
@@ -164,12 +203,19 @@ const Register = () => {
         <Input type="text" name="mobile" value={formData.mobile} onChange={onChange} placeholder="Mobile Number" />
 
         <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Date of Birth</label>
-            <Input type="date" name="dob" value={formData.dob} onChange={onChange} required />
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Date of Birth <span className="text-red-500">*</span>
+          </label>
+          <Input type="date" name="dob" value={formData.dob} onChange={onChange} required max={new Date().toISOString().split('T')[0]} />
+          {formData.dob && (
+            <p className="text-xs text-gray-500 mt-1">
+              Age: {calculateAge(formData.dob)} years
+            </p>
+          )}
         </div>
 
         {formData.role === 'voter' && (
-           <Input type="text" name="address" value={formData.address} onChange={onChange} placeholder="Full Residential Address" />
+          <Input type="text" name="address" value={formData.address} onChange={onChange} placeholder="Full Residential Address" />
         )}
 
         {formData.role === 'candidate' && (
@@ -186,7 +232,7 @@ const Register = () => {
         )}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">Profile Image (Optional)</label>
-          <input type="file" name="image" onChange={handleFileChange} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
+          <input type="file" name="image" onChange={handleFileChange} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
         </div>
       </div>
       <div className="flex justify-between items-center mt-6 gap-4">

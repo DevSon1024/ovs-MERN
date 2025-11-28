@@ -2,6 +2,20 @@ import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
 import Vote from '../models/voteModel.js';
 
+// Helper function to calculate age from date of birth
+const calculateAge = (dob) => {
+  const birthDate = new Date(dob);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  
+  return age;
+};
+
 // @desc    Register new user
 // @route   POST /api/users/register
 // @access  Public
@@ -10,11 +24,37 @@ const registerUser = async (req, res) => {
   const image = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
+    // Validate date of birth
+    if (!dob) {
+      return res.status(400).json({ message: 'Date of birth is required' });
+    }
+
+    // Calculate age
+    const age = calculateAge(dob);
+
+    // Check age eligibility based on role
+    if (role === 'voter' && age < 18) {
+      return res.status(400).json({ 
+        message: 'You are not eligible for voting. Voters must be at least 18 years old.',
+        eligibilityError: true,
+        requiredAge: 18,
+        currentAge: age
+      });
+    }
+
+    if (role === 'candidate' && age < 25) {
+      return res.status(400).json({ 
+        message: 'You are not eligible to be a candidate. Candidates must be at least 25 years old.',
+        eligibilityError: true,
+        requiredAge: 25,
+        currentAge: age
+      });
+    }
+
     const userExists = await User.findOne({ email });
 
     if (userExists) {
-      res.status(400);
-      throw new Error('User already exists');
+      return res.status(400).json({ message: 'User already exists' });
     }
 
     const userData = {
@@ -32,7 +72,7 @@ const registerUser = async (req, res) => {
     };
     
     if (party) {
-        userData.party = party;
+      userData.party = party;
     }
 
     const user = await User.create(userData);
@@ -46,8 +86,7 @@ const registerUser = async (req, res) => {
         token: generateToken(user._id, user.role),
       });
     } else {
-      res.status(400);
-      throw new Error('Invalid user data');
+      res.status(400).json({ message: 'Invalid user data' });
     }
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -96,9 +135,7 @@ const getUsers = async (req, res) => {
   res.json(users.map(user => {
     const userObject = user.toObject();
     if (userObject.dob) {
-      const ageDifMs = Date.now() - new Date(userObject.dob).getTime();
-      const ageDate = new Date(ageDifMs);
-      userObject.age = Math.abs(ageDate.getUTCFullYear() - 1970);
+      userObject.age = calculateAge(userObject.dob);
     }
     return userObject;
   }));
@@ -126,7 +163,7 @@ const updateUserProfile = async (req, res) => {
     user.address = req.body.address || user.address;
 
     if (req.body.party) {
-        user.party = req.body.party;
+      user.party = req.body.party;
     }
 
     const updatedUser = await user.save();
@@ -161,7 +198,7 @@ const deleteUserProfile = async (req, res) => {
       throw new Error('User not found');
     }
   } catch (error) {
-     res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: error.message || 'Server Error' });
   }
 };
 
@@ -189,32 +226,32 @@ const getUserVotedElections = async (req, res) => {
 // @route   GET /api/users/vote-details/:electionId
 // @access  Private
 const getUserVoteDetails = async (req, res) => {
-    try {
-        const vote = await Vote.findOne({
-            voter: req.user._id,
-            election: req.params.electionId
-        }).populate({
-            path: 'candidate',
-            populate: {
-                path: 'party',
-                model: 'Party'
-            }
-        });
+  try {
+    const vote = await Vote.findOne({
+      voter: req.user._id,
+      election: req.params.electionId
+    }).populate({
+      path: 'candidate',
+      populate: {
+        path: 'party',
+        model: 'Party'
+      }
+    });
 
-        if (!vote) {
-            return res.status(404).json({ msg: 'Vote not found' });
-        }
-
-        res.json({
-            candidateId: vote.candidate._id,
-            candidateName: vote.candidate.name,
-            candidateParty: vote.candidate.party.name,
-            votedAt: vote.createdAt
-        });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+    if (!vote) {
+      return res.status(404).json({ msg: 'Vote not found' });
     }
+
+    res.json({
+      candidateId: vote.candidate._id,
+      candidateName: vote.candidate.name,
+      candidateParty: vote.candidate.party.name,
+      votedAt: vote.createdAt
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
 };
 
 export { registerUser, loginUser, getMe, getUsers, updateUserProfile, deleteUserProfile, getUserVotedElections, getUserVoteDetails };
